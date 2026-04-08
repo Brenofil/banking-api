@@ -1,6 +1,6 @@
 # Banking API
 
-A simple banking API built with FastAPI and Python 3. This API provides endpoints for managing users, accounts, and transactions.
+A simple banking data processment API built with FastAPI and Python 3. This API provides endpoints for managing users, accounts, and transactions.
 
 ## Features
 
@@ -16,19 +16,16 @@ A simple banking API built with FastAPI and Python 3. This API provides endpoint
 ```
 banking-api/
 ├── app/
-│   ├── __init__.py
 │   ├── main.py              # FastAPI application entry point
 │   ├── models/              # Pydantic models (organized by domain)
-│   │   ├── __init__.py
 │   │   ├── user.py          # User models
 │   │   ├── account.py       # Account models
 │   │   └── transaction.py   # Transaction models
 │   └── routers/
-│       ├── __init__.py
 │       ├── users.py         # User endpoints
 │       ├── accounts.py      # Account endpoints
 │       ├── transactions.py  # Transaction endpoints
-│       └── processing.py    # Document processing endpoints
+│       └── documents.py    # Document processing endpoints
 ├── .env.example             # Environment variables template
 ├── pyproject.toml           # Poetry configuration and dependencies
 ├── poetry.lock              # Poetry lock file (auto-generated)
@@ -145,93 +142,10 @@ The API will be available at:
 - `GET /` - Welcome message and API information
 - `GET /health` - Health check endpoint
 
-### Users (`/api/v1/users`)
-
-- `POST /api/v1/users/` - Create a new user
-- `GET /api/v1/users/` - List all users
-- `GET /api/v1/users/{user_id}` - Get a specific user
-- `DELETE /api/v1/users/{user_id}` - Delete a user
-
-### Accounts (`/api/v1/accounts`)
-
-- `POST /api/v1/accounts/` - Create a new account
-- `GET /api/v1/accounts/` - List all accounts (optional: filter by user_id)
-- `GET /api/v1/accounts/{account_id}` - Get a specific account
-- `GET /api/v1/accounts/{account_id}/balance` - Get account balance
-- `DELETE /api/v1/accounts/{account_id}` - Delete an account
-
-### Transactions (`/api/v1/transactions`)
-
-- `POST /api/v1/transactions/` - Create a transfer between accounts
-- `POST /api/v1/transactions/deposit` - Deposit money into an account
-- `POST /api/v1/transactions/withdraw` - Withdraw money from an account
-- `GET /api/v1/transactions/` - List all transactions (optional: filter by account_id)
-- `GET /api/v1/transactions/{transaction_id}` - Get a specific transaction
-
 ### Document Processing (`/api/v1/processing`)
 
 - `POST /api/v1/processing/upload` - Upload a document for processing
 - `GET /api/v1/processing/config` - Get current processing configuration
-
-## Example Usage
-
-### Create a User
-
-```bash
-curl -X POST "http://localhost:8000/api/v1/users/" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "john@example.com",
-    "full_name": "John Doe",
-    "phone": "+1234567890",
-    "password": "securepassword"
-  }'
-```
-
-### Create an Account
-
-```bash
-curl -X POST "http://localhost:8000/api/v1/accounts/" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "user_id": 1,
-    "account_type": "checking",
-    "currency": "USD"
-  }'
-```
-
-### Deposit Money
-
-```bash
-curl -X POST "http://localhost:8000/api/v1/transactions/deposit" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "account_id": 1,
-    "amount": 1000.00,
-    "description": "Initial deposit"
-  }'
-```
-
-### Transfer Money
-
-```bash
-curl -X POST "http://localhost:8000/api/v1/transactions/" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "from_account_id": 1,
-    "to_account_id": 2,
-    "amount": 100.00,
-    "description": "Payment"
-  }'
-```
-
-### Upload a Document
-
-```bash
-curl -X POST "http://localhost:8000/api/v1/processing/upload" \
-  -H "Content-Type: multipart/form-data" \
-  -F "file=@/path/to/your/document.pdf"
-```
 
 ## Configuration
 
@@ -291,12 +205,12 @@ This project follows [Semantic Versioning](https://semver.org/) (SemVer) for ver
 
 **1. Create an annotated tag** (recommended for releases):
 ```bash
-git tag -a v0.2.0 -m "Release v0.2.0: Added document processing and refactored models"
+git tag -a v0.2.0 -m "Release v0.0.0: Created the folder structure"
 ```
 
 **2. Push the tag to remote**:
 ```bash
-git push origin v0.2.0
+git push origin v0.0.0
 ```
 
 **3. Push all tags**:
@@ -306,34 +220,18 @@ git push origin --tags
 
 #### Tag Management Commands
 
-**List all tags**:
 ```bash
-git tag
-```
+git tag                         # list all tags
 
-**List tags with messages**:
-```bash
-git tag -n
-```
+git tag -n                      # list tags with messages
 
-**Show tag details**:
-```bash
-git show v0.2.0
-```
+git show v0.0.0                 # show tag details
 
-**Delete a local tag**:
-```bash
-git tag -d v0.2.0
-```
+git tag -d v0.0.0               # delete local tag
 
-**Delete a remote tag**:
-```bash
-git push origin --delete v0.2.0
-```
+git push origin --delete v0.0.0 # delete remote tag
 
-**Checkout a specific tag**:
-```bash
-git checkout v0.2.0
+git checkout v0.2.0             # checkout a specific tag
 ```
 
 #### Recommended Workflow
@@ -359,8 +257,7 @@ git checkout v0.2.0
 
 #### Version History
 
-- **v0.1.0** - Initial release with user, account, and transaction management
-- **v0.2.0** - Added document processing endpoint and refactored models into separate files
+- **v0.0.0** - Initial release
 
 #### Conventional Commits (Optional)
 
@@ -381,10 +278,6 @@ git commit -m "refactor: split models.py into separate domain files"
 ### Running Tests
 
 (Tests not yet implemented - this is a basic example)
-
-### Code Style
-
-The code follows PEP 8 style guidelines.
 
 ### Exporting Dependencies
 

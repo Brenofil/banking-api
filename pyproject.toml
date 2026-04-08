@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "banking-api"
-version = "0.2.0"
+version = "0.0.0"
 description = "A simple banking API built with FastAPI and Python 3"
-authors = ["Your Name <you@example.com>"]
+authors = ["Breno Filgueiras <breno.fil.costa@gmail.com>"]
 readme = "README.md"
 license = "Apache-2.0"
 packages = [{include = "app"}]
