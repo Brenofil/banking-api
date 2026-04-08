@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "banking-api"
+version = "0.2.0"
+description = "A simple banking API built with FastAPI and Python 3"
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+license = "Apache-2.0"
+packages = [{include = "app"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.115.0"
+uvicorn = {extras = ["standard"], version = "^0.32.0"}
+pydantic = {extras = ["email"], version = "^2.9.2"}
+python-multipart = "^0.0.12"
+
+[tool.poetry.group.dev.dependencies]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
