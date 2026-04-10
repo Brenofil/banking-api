@@ -3,14 +3,22 @@ Document processing endpoints
 """
 
 import os
-from app.models.documents.document import DocumentProcessingResponse
+from typing import Optional
+
 from fastapi import APIRouter, HTTPException, status, UploadFile, File
+
+from app.interfaces.processor_interface import ProcessorInterface
+from app.models.documents.document import DocumentProcessingResponse
+from app.services.utils.logger import LoggerService
+from app.services.documents.processors.factory import DocumentProcessorFactory
 
 router = APIRouter()
 
 # Get max file size from environment variable (default: 10 MB)
 MAX_FILE_SIZE_MB = int(os.getenv("MAX_FILE_SIZE_MB", "10"))
 MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+
+logger = LoggerService().get_logger("Document Route")
 
 
 @router.post(
@@ -41,8 +49,20 @@ async def upload_document(file: UploadFile = File(...)):
             status_code=status.HTTP_400_BAD_REQUEST, detail="File is empty"
         )
 
-    # Here you would implement actual document processing logic
-    # For now, we just return success response
+    try:
+        factory: DocumentProcessorFactory = DocumentProcessorFactory()
+        logger.debug("Instantiated document processor factory")
+
+        logger.info("File has content_type :: %s", file.content_type)
+
+    except Exception as e:
+        logger.error("Failed to process document, error: %s", str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to process document: {str(e)}",
+        )
+
+    logger.warning("For now, just returning success response")
 
     return DocumentProcessingResponse(
         filename=file.filename or "unknown",

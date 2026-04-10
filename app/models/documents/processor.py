@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
-from enums.processing_status import ProcessingStatus
+from app.enums.processing_status import ProcessingStatus
 
 
 class ProcessorResponse(BaseModel):

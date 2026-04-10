@@ -43,13 +43,14 @@ Log Files:
 """
 
 import inspect
+import os
 import sys
 from pathlib import Path
 from typing import Optional, Union
 
 from loguru import logger
 
-from enums.logging_levels import LoggingLevels
+from app.enums.logging_levels import LoggingLevels
 
 
 def _get_caller_class_name() -> Optional[str]:
@@ -107,7 +108,6 @@ class LoggerService:
     def __init__(
         self,
         log_dir: str = "logs",
-        log_level: Union[str, LoggingLevels] = "INFO",
         rotation: str = "10 MB",
         retention: str = "30 days",
         compression: str = "zip",
@@ -117,9 +117,6 @@ class LoggerService:
 
         Args:
             log_dir: Directory to store log files (default: "logs")
-            log_level: Minimum log level to capture. Can be a string or LoggingLevels enum.
-                      Options: TRACE, DEBUG, INFO, SUCCESS, WARNING, ERROR, CRITICAL
-                      (default: "INFO")
             rotation: When to rotate log files. Examples:
                      - "10 MB": Rotate when file reaches 10 megabytes
                      - "1 day": Rotate daily at midnight
@@ -146,10 +143,8 @@ class LoggerService:
             ... )
         """
         # Convert LoggingLevels enum to string if needed
-        if isinstance(log_level, LoggingLevels):
-            log_level = log_level.value
         self.log_dir = Path(log_dir)
-        self.log_level = log_level
+        self.log_level = os.getenv("LOG_LEVEL", "INFO")
         self.rotation = rotation
         self.retention = retention
         self.compression = compression
@@ -381,7 +376,6 @@ def initialize_logger(
     global _logger_service
     _logger_service = LoggerService(
         log_dir=log_dir,
-        log_level=log_level,
         rotation=rotation,
         retention=retention,
         compression=compression,

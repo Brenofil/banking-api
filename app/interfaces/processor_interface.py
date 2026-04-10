@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 
 from pydantic import Base64Bytes
-from models.documents.processor import ProcessorResponse
+from app.models.documents.processor import ProcessorResponse
 
 
 class ProcessorInterface(ABC):
