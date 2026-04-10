@@ -8,11 +8,13 @@ license = "Apache-2.0"
 packages = [{include = "app"}]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.11"
 fastapi = "^0.115.0"
 uvicorn = {extras = ["standard"], version = "^0.32.0"}
 pydantic = {extras = ["email"], version = "^2.9.2"}
 python-multipart = "^0.0.12"
+docling = "^2.85.0"
+loguru = "^0.7.3"
 
 [tool.poetry.group.dev.dependencies]
 
