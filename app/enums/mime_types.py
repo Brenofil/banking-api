@@ -48,6 +48,87 @@ class MimeType(str, Enum):
     XML = "application/xml"
     XML_TEXT = "text/xml"
 
+    def get_file_type(self) -> str:
+        """
+        Get the file type identifier for this MIME type.
+
+        Returns:
+            str: File type identifier (e.g., 'pdf', 'csv', 'xlsx')
+
+        Example:
+            >>> MimeType.PDF.get_file_type()
+            'pdf'
+            >>> MimeType.XLSX.get_file_type()
+            'xlsx'
+        """
+        # Map MIME type enum to file type
+        mime_to_type = {
+            self.PDF: "pdf",
+            self.CSV: "csv",
+            self.XLSX: "xlsx",
+            self.XLS: "xls",
+            self.DOCX: "docx",
+            self.DOC: "doc",
+            self.TXT: "txt",
+            self.JSON: "json",
+            self.XML: "xml",
+            self.XML_TEXT: "xml",
+        }
+        return mime_to_type[self]
+
+    @classmethod
+    def get_mime_to_type_map(cls) -> dict[str, str]:
+        """
+        Get mapping of MIME types to file type identifiers.
+
+        Returns:
+            dict[str, str]: Dictionary mapping MIME types to file types
+
+        Example:
+            >>> MimeType.get_mime_to_type_map()
+            {'application/pdf': 'pdf', 'text/csv': 'csv', ...}
+        """
+        return {mime.value: mime.get_file_type() for mime in cls}
+
+    @classmethod
+    def from_file_type(cls, file_type: str) -> "MimeType":
+        """
+        Get the primary MIME type for a given file type.
+
+        Args:
+            file_type: File type identifier (e.g., 'pdf', 'csv')
+
+        Returns:
+            MimeType: Primary MIME type for the file type
+
+        Raises:
+            ValueError: If file type is not recognized
+
+        Example:
+            >>> MimeType.from_file_type('pdf')
+            <MimeType.PDF: 'application/pdf'>
+        """
+        type_to_mime = {
+            "pdf": cls.PDF,
+            "csv": cls.CSV,
+            "xlsx": cls.XLSX,
+            "xls": cls.XLS,
+            "docx": cls.DOCX,
+            "doc": cls.DOC,
+            "txt": cls.TXT,
+            "json": cls.JSON,
+            "xml": cls.XML,
+        }
+
+        file_type_lower = file_type.lower().strip()
+        if file_type_lower not in type_to_mime:
+            raise ValueError(
+                f"Unknown file type: {file_type}. "
+                f"Known types: {', '.join(type_to_mime.keys())}"
+            )
+
+        return type_to_mime[file_type_lower]
+
     @classmethod
     def from_string(cls, mime_type: str) -> "MimeType":
         """

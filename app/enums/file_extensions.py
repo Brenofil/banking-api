@@ -44,6 +44,86 @@ class FileExtension(str, Enum):
     JSON = ".json"
     XML = ".xml"
 
+    def get_file_type(self) -> str:
+        """
+        Get the file type identifier for this extension.
+
+        Returns:
+            str: File type identifier (e.g., 'pdf', 'csv', 'xlsx')
+
+        Example:
+            >>> FileExtension.PDF.get_file_type()
+            'pdf'
+            >>> FileExtension.XLSX.get_file_type()
+            'xlsx'
+        """
+        # Map extension enum to file type
+        extension_to_type = {
+            self.PDF: "pdf",
+            self.CSV: "csv",
+            self.XLSX: "xlsx",
+            self.XLS: "xls",
+            self.DOCX: "docx",
+            self.DOC: "doc",
+            self.TXT: "txt",
+            self.JSON: "json",
+            self.XML: "xml",
+        }
+        return extension_to_type[self]
+
+    @classmethod
+    def get_extension_to_type_map(cls) -> dict[str, str]:
+        """
+        Get mapping of file extensions to file type identifiers.
+
+        Returns:
+            dict[str, str]: Dictionary mapping extensions to file types
+
+        Example:
+            >>> FileExtension.get_extension_to_type_map()
+            {'.pdf': 'pdf', '.csv': 'csv', '.xlsx': 'xlsx', ...}
+        """
+        return {ext.value: ext.get_file_type() for ext in cls}
+
+    @classmethod
+    def from_file_type(cls, file_type: str) -> "FileExtension":
+        """
+        Get the primary extension for a given file type.
+
+        Args:
+            file_type: File type identifier (e.g., 'pdf', 'csv')
+
+        Returns:
+            FileExtension: Primary extension for the file type
+
+        Raises:
+            ValueError: If file type is not recognized
+
+        Example:
+            >>> FileExtension.from_file_type('pdf')
+            <FileExtension.PDF: '.pdf'>
+        """
+        type_to_extension = {
+            "pdf": cls.PDF,
+            "csv": cls.CSV,
+            "xlsx": cls.XLSX,
+            "xls": cls.XLS,
+            "docx": cls.DOCX,
+            "doc": cls.DOC,
+            "txt": cls.TXT,
+            "json": cls.JSON,
+            "xml": cls.XML,
+        }
+
+        file_type_lower = file_type.lower().strip()
+        if file_type_lower not in type_to_extension:
+            raise ValueError(
+                f"Unknown file type: {file_type}. "
+                f"Known types: {', '.join(type_to_extension.keys())}"
+            )
+
+        return type_to_extension[file_type_lower]
+
     @classmethod
     def from_string(cls, extension: str) -> "FileExtension":
         """
