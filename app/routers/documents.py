@@ -53,10 +53,11 @@ async def upload_document(file: UploadFile = File(...)):
         factory: DocumentProcessorFactory = DocumentProcessorFactory()
         logger.debug("Instantiated document processor factory")
 
-        logger.info("File has content_type :: %s", file.content_type)
+        logger.info(f"File has content_type :: {str(file.content_type)}")
 
     except Exception as e:
-        logger.error("Failed to process document, error: %s", str(e))
+        logger.error(f"Failed to process document, error: {str(e)}")
+
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to process document: {str(e)}",
