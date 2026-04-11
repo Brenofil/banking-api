@@ -216,15 +216,10 @@ class MimeType(str, Enum):
 
         Raises:
             ValueError: If extension is not supported
-
-        Example:
-            >>> MimeType.get_mime_type_for_extension(".pdf")
-            <MimeType.PDF: 'application/pdf'>
-            >>> MimeType.get_mime_type_for_extension("csv")
-            <MimeType.CSV: 'text/csv'>
         """
         # Normalize extension
         ext = extension.lower().strip()
+
         if not ext.startswith("."):
             ext = f".{ext}"
 

@@ -6,6 +6,7 @@ from app.interfaces.processor_factory_interface import ProcessorFactoryInterface
 from app.interfaces.processor_interface import ProcessorInterface
 from app.enums.file_extensions import FileExtension
 from app.enums.mime_types import MimeType
+from app.processors.pdf_processor import PdfDocumentProcessor
 
 
 class DocumentProcessorFactory(ProcessorFactoryInterface):
@@ -30,7 +31,10 @@ class DocumentProcessorFactory(ProcessorFactoryInterface):
         """Initialize the factory with processor registry."""
         # Registry mapping file types to processor classes
         # This will be populated as processors are implemented
-        self._processor_registry: dict[str, type[ProcessorInterface]] = {}
+        self._processor_registry: dict[str, type[ProcessorInterface]] = {
+            "pdf": PdfDocumentProcessor
+            # TODO :: add other processors
+        }
 
     def create_processor(self, file_type: str) -> ProcessorInterface:
         """
@@ -46,6 +50,7 @@ class DocumentProcessorFactory(ProcessorFactoryInterface):
             ValueError: If file_type is not supported
             NotImplementedError: If processor for file_type is not implemented yet
         """
+
         file_type_lower = file_type.lower().strip()
 
         if not self.is_supported(file_type_lower):

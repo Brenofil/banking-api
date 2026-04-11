@@ -14,18 +14,31 @@ class ProcessorInterface(ABC):
     """
 
     @abstractmethod
-    def process(self, document_data: bytes) -> ProcessorResponse:
+    def getName(self) -> str:
+        """
+        Fetch the current processor's name
+
+        Returns:
+            A string with the processor's name
+        """
+        pass
+
+    @abstractmethod
+    def process(
+        self, content: bytes, password: Optional[str] = None
+    ) -> ProcessorResponse:
         """
         Process document data and extract structured information.
 
         Args:
-            document_data: Raw document bytes to be processed
+            content: Raw document bytes to be processed
+            password: Optional password for encrypted/protected documents
 
         Returns:
             ProcessorResponse: Structured response containing processing status and extracted data
 
         Raises:
-            ValueError: If document_data is invalid or corrupted
+            ValueError: If content is invalid or corrupted, or if password is required but not provided
             RuntimeError: If processing fails due to docling errors
         """
         pass
@@ -63,7 +76,7 @@ class ProcessorInterface(ABC):
         """
         pass
 
-    def preprocess(self, document_data: bytes) -> bytes:
+    def preprocess(self, content: bytes) -> bytes:
         """
         Optional preprocessing step before main processing.
 
@@ -71,12 +84,12 @@ class ProcessorInterface(ABC):
         such as cleaning, normalization, or format conversion.
 
         Args:
-            document_data: Raw document bytes
+            content: Raw document bytes
 
         Returns:
             bytes: Preprocessed document bytes
         """
-        return document_data
+        return content
 
     def postprocess(self, response: ProcessorResponse) -> ProcessorResponse:
         """

@@ -1,16 +1,22 @@
 """
-Document processing endpoints
+Document processing endpoints available for this API, for now the endpoints
+available are:
+
+1. /upload :: responsible for uploading a document for processing
+2. /config :: responsible for returning the current processing configuration
+
+Other endpoints will be developed as needed
 """
 
 import os
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, status, UploadFile, File
-
+from app.services.utils.logger import LoggerService
+from app.processors.factory import DocumentProcessorFactory
+from app.models.documents.processor import ProcessorResponse
 from app.interfaces.processor_interface import ProcessorInterface
 from app.models.documents.document import DocumentProcessingResponse
-from app.services.utils.logger import LoggerService
-from app.services.documents.processors.factory import DocumentProcessorFactory
+from fastapi import APIRouter, HTTPException, status, UploadFile, File, Form
 
 router = APIRouter()
 
@@ -23,55 +29,111 @@ logger = LoggerService().get_logger("Document Route")
 
 @router.post(
     "/upload",
-    response_model=DocumentProcessingResponse,
+    response_model=ProcessorResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def upload_document(file: UploadFile = File(...)):
+async def upload_document(
+    file: UploadFile = File(..., description="Document file to upload and process"),
+    password: Optional[str] = Form(
+        None,
+        description="Password for encrypted/protected documents (e.g., banking PDFs with sensitive information)",
+    ),
+) -> ProcessorResponse:
     """
-    Upload a document for processing
+    Upload and process a document through the complete pipeline.
 
-    - file: Document file to upload (max size configurable via MAX_FILE_SIZE_MB env var)
+    This endpoint:
+    1. Validates file size and content
+    2. Determines appropriate processor based on file extension
+    3. Preprocesses the document
+    4. Processes and extracts structured data using Docling
+    5. Handles password-protected documents (e.g., encrypted PDFs)
+    6. Returns complete processing results
+
+    Args:
+        file: Document file to upload (max size configurable via MAX_FILE_SIZE_MB env var)
+        password: Optional password for encrypted/protected documents (e.g., banking PDFs with credit card info)
+
+    Returns:
+        ProcessorResponse: Complete processing results including extracted data,
+                          metadata, tables, images, and processing statistics
+
+    Note:
+        For banking documents with sensitive information (credit cards, account numbers),
+        PDFs are often password-protected. Provide the password parameter to process
+        these encrypted documents.
     """
-    # Read file content to check size
-    content = await file.read()
-    file_size = len(content)
+
+    logger.info(f"Received document upload request: {file.filename}")
+
+    content: bytes = await file.read()
+    file_size: int = len(content)
 
     # Validate file size
     if file_size > MAX_FILE_SIZE_BYTES:
+        logger.error(f"File size {file_size} exceeds maximum {MAX_FILE_SIZE_BYTES}")
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             detail=f"File size ({file_size / (1024 * 1024):.2f} MB) exceeds maximum allowed size ({MAX_FILE_SIZE_MB} MB)",
         )
 
-    # Validate file is not empty
+    # Validate empty files
     if file_size == 0:
+        logger.error("Empty file received")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="File is empty"
         )
 
     try:
+        logger.info("Instantiating document processor factory")
         factory: DocumentProcessorFactory = DocumentProcessorFactory()
-        logger.debug("Instantiated document processor factory")
 
-        logger.info(f"File has content_type :: {str(file.content_type)}")
+        # Extract file extension
+        if not file.filename or "." not in file.filename:
+            raise ValueError("Invalid filename - no extension found")
 
+        extension: str = file.filename.split(".")[-1]
+        logger.info(f"Detected file extension: .{extension}")
+
+        # Get appropriate processor
+        processor: ProcessorInterface = factory.get_processor_by_extension(extension)
+        logger.info(f"Using processor: {processor.getName()}")
+
+        # Process document through complete pipeline
+        logger.info("Starting document processing pipeline")
+        if password:
+            logger.info("Password provided for encrypted document processing")
+
+        # Process: preprocess, extract structured data using Docling, and postprocess
+        # Note: The processor.process() method handles preprocessing internally
+        logger.info(
+            "Processing document (includes preprocessing, extraction, and postprocessing)"
+        )
+        response: ProcessorResponse = processor.process(content, password=password)
+
+        # Log processing results
+        logger.info(
+            f"Document processed successfully - "
+            f"Status: {response.status}, "
+            f"Processing time: {response.processing_time_ms:.2f}ms, "
+            f"Pages: {response.page_count}, "
+            f"Tables: {len(response.tables) if response.tables else 0}"
+        )
+
+        return response
+
+    except ValueError as e:
+        logger.error(f"Validation error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid request: {str(e)}",
+        )
     except Exception as e:
-        logger.error(f"Failed to process document, error: {str(e)}")
-
+        logger.error(f"Failed to process document: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to process document: {str(e)}",
         )
-
-    logger.warning("For now, just returning success response")
-
-    return DocumentProcessingResponse(
-        filename=file.filename or "unknown",
-        size_bytes=file_size,
-        content_type=file.content_type,
-        status="success",
-        message=f"Document uploaded successfully. Size: {file_size / 1024:.2f} KB",
-    )
 
 
 @router.get("/config")
