@@ -76,11 +76,21 @@ For more installation options, visit: https://python-poetry.org/docs/#installati
    poetry install
    ```
 
-3. **Configure environment variables** (optional):
+3. **Configure environment variables**:
    ```bash
    cp .env.example .env
    ```
-   Edit `.env` to customize settings like `MAX_FILE_SIZE_MB` (default: 10 MB)
+   Edit `.env` to configure:
+   - `MAX_FILE_SIZE_MB`: Maximum file size for document uploads (default: 10 MB)
+   - `HF_TOKEN`: HuggingFace token for authenticated API requests (recommended)
+   
+   **Getting a HuggingFace Token** (recommended for document processing):
+   1. Create a free account at https://huggingface.co/
+   2. Go to https://huggingface.co/settings/tokens
+   3. Create a new token (read access is sufficient)
+   4. Add it to your `.env` file: `HF_TOKEN=your_token_here`
+   
+   Without a token, you'll see warnings and may experience rate limits or slower downloads.
 
 4. **Verify the virtual environment**:
    ```bash
@@ -154,12 +164,24 @@ The API will be available at:
 Create a `.env` file in the project root (copy from `.env.example`):
 
 ```bash
+# Logging level
+LOG_LEVEL="INFO"
+
 # Maximum file size for document uploads in megabytes
 MAX_FILE_SIZE_MB=10
+
+# HuggingFace Hub token for authenticated requests
+# Get your token from: https://huggingface.co/settings/tokens
+HF_TOKEN=your_huggingface_token_here
 ```
 
 Available environment variables:
+- `LOG_LEVEL`: Logging level (default: "INFO")
 - `MAX_FILE_SIZE_MB`: Maximum file size for document uploads (default: 10 MB)
+- `HF_TOKEN`: HuggingFace token for authenticated API requests (recommended for document processing)
+  - Enables higher rate limits and faster model downloads
+  - Get your token from: https://huggingface.co/settings/tokens
+  - Without this token, you'll see warnings about unauthenticated requests
 
 ## Data Storage
 
