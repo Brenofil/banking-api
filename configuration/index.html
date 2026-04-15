@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Configuration - Banking API</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../css/brands.min.css" rel="stylesheet">
+        <link href="../css/solid.min.css" rel="stylesheet">
+        <link href="../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">Banking API</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href=".." class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../about/" class="nav-link">About</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../architecture/" class="nav-link">Architecture</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../endpoints/" class="nav-link">Endpoints</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="./" class="nav-link active" aria-current="page">Configuration</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../endpoints/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" class="nav-link disabled">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#configuration" class="nav-link">Configuration</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#environment-variables" class="nav-link">Environment Variables</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#configuration-file" class="nav-link">Configuration File</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#setup-instructions" class="nav-link">Setup Instructions</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#running-the-api" class="nav-link">Running the API</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#file-storage-configuration" class="nav-link">File Storage Configuration</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#logging-configuration" class="nav-link">Logging Configuration</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#cors-configuration" class="nav-link">CORS Configuration</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#api-documentation" class="nav-link">API Documentation</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#performance-tuning" class="nav-link">Performance Tuning</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#security-configuration" class="nav-link">Security Configuration</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#troubleshooting" class="nav-link">Troubleshooting</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#environment-specific-configuration" class="nav-link">Environment-Specific Configuration</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#additional-resources" class="nav-link">Additional Resources</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="configuration">Configuration</h1>
+<p>Complete guide for configuring the Banking API.</p>
+<h2 id="environment-variables">Environment Variables</h2>
+<p>The API uses environment variables for configuration. Create a <code>.env</code> file in the project root (copy from <code>.env.example</code>).</p>
+<h3 id="available-variables">Available Variables</h3>
+<h4 id="log_level">LOG_LEVEL</h4>
+<pre><code class="language-bash">LOG_LEVEL=&quot;INFO&quot;
+</code></pre>
+<p><strong>Description</strong>: Sets the logging level for the application.</p>
+<p><strong>Options</strong>:
+- <code>DEBUG</code>: Detailed information for debugging
+- <code>INFO</code>: General informational messages (default)
+- <code>WARNING</code>: Warning messages
+- <code>ERROR</code>: Error messages only
+- <code>CRITICAL</code>: Critical errors only</p>
+<p><strong>Default</strong>: <code>INFO</code></p>
+<h4 id="max_file_size_mb">MAX_FILE_SIZE_MB</h4>
+<pre><code class="language-bash">MAX_FILE_SIZE_MB=10
+</code></pre>
+<p><strong>Description</strong>: Maximum file size for document uploads in megabytes.</p>
+<p><strong>Type</strong>: Integer</p>
+<p><strong>Default</strong>: <code>10</code> (10 MB)</p>
+<p><strong>Example</strong>:</p>
+<pre><code class="language-bash">MAX_FILE_SIZE_MB=50  # Allow up to 50 MB files
+</code></pre>
+<h4 id="hf_token">HF_TOKEN</h4>
+<pre><code class="language-bash">HF_TOKEN=your_huggingface_token_here
+</code></pre>
+<p><strong>Description</strong>: HuggingFace Hub token for authenticated API requests.</p>
+<p><strong>Purpose</strong>:
+- Enables higher rate limits
+- Faster model downloads
+- Access to gated models</p>
+<p><strong>How to get</strong>:
+1. Create a free account at <a href="https://huggingface.co/">huggingface.co</a>
+2. Go to <a href="https://huggingface.co/settings/tokens">Settings → Tokens</a>
+3. Create a new token (read access is sufficient)
+4. Add it to your <code>.env</code> file</p>
+<p><strong>Note</strong>: Without this token, you'll see warnings about unauthenticated requests and may experience rate limits.</p>
+<h4 id="file_location">FILE_LOCATION</h4>
+<pre><code class="language-bash">FILE_LOCATION=files
+</code></pre>
+<p><strong>Description</strong>: Directory for storing exported files (Excel, CSV, etc.).</p>
+<p><strong>Type</strong>: String (directory path)</p>
+<p><strong>Default</strong>: <code>files</code> (if not set)</p>
+<p><strong>Behavior</strong>:
+- Directory is created automatically if it doesn't exist
+- Can be absolute or relative path
+- Relative paths are relative to project root</p>
+<p><strong>Examples</strong>:</p>
+<pre><code class="language-bash">FILE_LOCATION=files                    # Default
+FILE_LOCATION=/var/app/exports         # Absolute path
+FILE_LOCATION=exports/documents        # Nested directory
+</code></pre>
+<h2 id="configuration-file">Configuration File</h2>
+<h3 id="envexample">.env.example</h3>
+<p>Template file with all available configuration options:</p>
+<pre><code class="language-bash">LOG_LEVEL=&quot;INFO&quot;
+
+# Maximum file size for document uploads in megabytes
+MAX_FILE_SIZE_MB=10
+
+# HuggingFace Hub token for authenticated requests
+# Get your token from: https://huggingface.co/settings/tokens
+# This enables higher rate limits and faster model downloads
+HF_TOKEN=your_huggingface_token_here
+
+# Directory for storing exported files (Excel, CSV, etc.)
+FILE_LOCATION=files
+</code></pre>
+<h3 id="envlocal">.env.local</h3>
+<p>Your local configuration file (not tracked by git):</p>
+<pre><code class="language-bash"># Copy from .env.example and customize
+cp .env.example .env.local
+</code></pre>
+<p><strong>Important</strong>: <code>.env.local</code> is in <code>.gitignore</code> to prevent committing sensitive data.</p>
+<h2 id="setup-instructions">Setup Instructions</h2>
+<h3 id="1-install-dependencies">1. Install Dependencies</h3>
+<pre><code class="language-bash"># Install Poetry if not already installed
+curl -sSL https://install.python-poetry.org | python3 -
+
+# Install project dependencies
+poetry install
+</code></pre>
+<h3 id="2-configure-environment">2. Configure Environment</h3>
+<pre><code class="language-bash"># Copy example configuration
+cp .env.example .env.local
+
+# Edit configuration
+nano .env.local  # or use your preferred editor
+</code></pre>
+<h3 id="3-set-huggingface-token-recommended">3. Set HuggingFace Token (Recommended)</h3>
+<pre><code class="language-bash"># Add your token to .env.local
+HF_TOKEN=hf_your_actual_token_here
+</code></pre>
+<h3 id="4-verify-configuration">4. Verify Configuration</h3>
+<pre><code class="language-bash"># Check Poetry environment
+poetry env info
+
+# Test configuration
+poetry run python -c &quot;import os; print('LOG_LEVEL:', os.getenv('LOG_LEVEL', 'INFO'))&quot;
+</code></pre>
+<h2 id="running-the-api">Running the API</h2>
+<h3 id="development-server">Development Server</h3>
+<pre><code class="language-bash"># Start with auto-reload
+poetry run uvicorn app.main:app --reload
+
+# Custom host and port
+poetry run uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
+
+# With specific log level
+LOG_LEVEL=DEBUG poetry run uvicorn app.main:app --reload
+</code></pre>
+<h3 id="production-server">Production Server</h3>
+<pre><code class="language-bash"># Production mode (no reload)
+poetry run uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+
+# With Gunicorn
+poetry run gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker
+</code></pre>
+<h2 id="file-storage-configuration">File Storage Configuration</h2>
+<h3 id="default-behavior">Default Behavior</h3>
+<p>If <code>FILE_LOCATION</code> is not set:
+1. System checks for environment variable
+2. Falls back to <code>files</code> directory
+3. Creates directory if it doesn't exist</p>
+<h3 id="custom-location">Custom Location</h3>
+<pre><code class="language-bash"># Set custom location
+FILE_LOCATION=/var/app/exports
+
+# Or in code
+from app.utils.file_operations import FileOperations
+
+file_ops = FileOperations(base_directory=&quot;/custom/path&quot;)
+</code></pre>
+<h3 id="directory-structure">Directory Structure</h3>
+<pre><code>files/
+├── document1_20260415_120000_tables.xlsx
+├── document2_20260415_120100_tables.xlsx
+└── document3_20260415_120200_tables.xlsx
+</code></pre>
+<p>Files are named with pattern: <code>{original_name}_{timestamp}_tables.xlsx</code></p>
+<h2 id="logging-configuration">Logging Configuration</h2>
+<h3 id="log-levels">Log Levels</h3>
+<pre><code class="language-bash"># Development
+LOG_LEVEL=DEBUG
+
+# Production
+LOG_LEVEL=INFO
+
+# Troubleshooting
+LOG_LEVEL=WARNING
+</code></pre>
+<h3 id="log-output">Log Output</h3>
+<p>Logs are written to:
+- Console (stdout)
+- <code>logs/</code> directory (if configured)</p>
+<h3 id="log-format">Log Format</h3>
+<pre><code>2026-04-15 12:00:00 | INFO | Component | module:function:line - Message
+</code></pre>
+<h2 id="cors-configuration">CORS Configuration</h2>
+<p>CORS is configured in <a href="../app/main.py"><code>main.py</code></a>:</p>
+<pre><code class="language-python">app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[&quot;*&quot;],  # Configure for production
+    allow_credentials=True,
+    allow_methods=[&quot;*&quot;],
+    allow_headers=[&quot;*&quot;],
+)
+</code></pre>
+<p><strong>Production</strong>: Restrict <code>allow_origins</code> to specific domains.</p>
+<h2 id="api-documentation">API Documentation</h2>
+<h3 id="swagger-ui">Swagger UI</h3>
+<ul>
+<li>URL: <code>http://localhost:8000/docs</code></li>
+<li>Interactive API testing</li>
+<li>Request/response examples</li>
+</ul>
+<h3 id="redoc">ReDoc</h3>
+<ul>
+<li>URL: <code>http://localhost:8000/redoc</code></li>
+<li>Alternative documentation view</li>
+<li>Better for reading</li>
+</ul>
+<h2 id="performance-tuning">Performance Tuning</h2>
+<h3 id="file-size-limits">File Size Limits</h3>
+<pre><code class="language-bash"># Increase for large documents
+MAX_FILE_SIZE_MB=50
+
+# Decrease for resource-constrained environments
+MAX_FILE_SIZE_MB=5
+</code></pre>
+<h3 id="worker-processes">Worker Processes</h3>
+<pre><code class="language-bash"># More workers for better concurrency
+poetry run uvicorn app.main:app --workers 8
+
+# Recommended: 2-4 workers per CPU core
+</code></pre>
+<h3 id="memory-considerations">Memory Considerations</h3>
+<ul>
+<li>Large PDFs require more memory</li>
+<li>Adjust <code>MAX_FILE_SIZE_MB</code> based on available RAM</li>
+<li>Monitor memory usage in production</li>
+</ul>
+<h2 id="security-configuration">Security Configuration</h2>
+<h3 id="environment-variables_1">Environment Variables</h3>
+<p><strong>Never commit</strong>:
+- <code>.env.local</code>
+- <code>.env</code>
+- Any file with actual tokens/secrets</p>
+<p><strong>Always commit</strong>:
+- <code>.env.example</code> (with placeholder values)</p>
+<h3 id="file-permissions">File Permissions</h3>
+<pre><code class="language-bash"># Secure configuration files
+chmod 600 .env.local
+
+# Secure export directory
+chmod 755 files/
+</code></pre>
+<h3 id="production-checklist">Production Checklist</h3>
+<ul>
+<li>[ ] Set strong <code>HF_TOKEN</code></li>
+<li>[ ] Configure specific CORS origins</li>
+<li>[ ] Set appropriate <code>MAX_FILE_SIZE_MB</code></li>
+<li>[ ] Use HTTPS in production</li>
+<li>[ ] Implement rate limiting</li>
+<li>[ ] Add authentication</li>
+<li>[ ] Configure firewall rules</li>
+<li>[ ] Set up monitoring</li>
+<li>[ ] Enable logging</li>
+<li>[ ] Regular security updates</li>
+</ul>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="common-issues">Common Issues</h3>
+<h4 id="huggingface-warnings">HuggingFace Warnings</h4>
+<p><strong>Problem</strong>: Warnings about unauthenticated requests</p>
+<p><strong>Solution</strong>: Set <code>HF_TOKEN</code> in <code>.env.local</code></p>
+<h4 id="file-upload-fails">File Upload Fails</h4>
+<p><strong>Problem</strong>: <code>413 Payload Too Large</code></p>
+<p><strong>Solution</strong>: Increase <code>MAX_FILE_SIZE_MB</code></p>
+<h4 id="directory-not-found">Directory Not Found</h4>
+<p><strong>Problem</strong>: Cannot write to <code>FILE_LOCATION</code></p>
+<p><strong>Solution</strong>: Check directory permissions or let system create it automatically</p>
+<h4 id="import-errors">Import Errors</h4>
+<p><strong>Problem</strong>: Module not found errors</p>
+<p><strong>Solution</strong>: </p>
+<pre><code class="language-bash">poetry install
+poetry run python your_script.py
+</code></pre>
+<h2 id="environment-specific-configuration">Environment-Specific Configuration</h2>
+<h3 id="development">Development</h3>
+<pre><code class="language-bash">LOG_LEVEL=DEBUG
+MAX_FILE_SIZE_MB=10
+FILE_LOCATION=files
+</code></pre>
+<h3 id="staging">Staging</h3>
+<pre><code class="language-bash">LOG_LEVEL=INFO
+MAX_FILE_SIZE_MB=25
+FILE_LOCATION=/var/app/staging/exports
+</code></pre>
+<h3 id="production">Production</h3>
+<pre><code class="language-bash">LOG_LEVEL=WARNING
+MAX_FILE_SIZE_MB=50
+FILE_LOCATION=/var/app/production/exports
+HF_TOKEN=&lt;production_token&gt;
+</code></pre>
+<h2 id="additional-resources">Additional Resources</h2>
+<ul>
+<li><a href="https://fastapi.tiangolo.com/advanced/settings/">FastAPI Configuration</a></li>
+<li><a href="https://python-poetry.org/docs/">Poetry Documentation</a></li>
+<li><a href="https://huggingface.co/docs/hub/security-tokens">HuggingFace Tokens</a></li>
+<li><a href="https://www.uvicorn.org/deployment/">Uvicorn Deployment</a></li>
+</ul></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js"></script>
+        <script src="../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

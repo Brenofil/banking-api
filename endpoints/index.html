@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Endpoints - Banking API</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../css/brands.min.css" rel="stylesheet">
+        <link href="../css/solid.min.css" rel="stylesheet">
+        <link href="../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">Banking API</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href=".." class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../about/" class="nav-link">About</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../architecture/" class="nav-link">Architecture</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="./" class="nav-link active" aria-current="page">Endpoints</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../configuration/" class="nav-link">Configuration</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../architecture/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../configuration/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#api-endpoints" class="nav-link">API Endpoints</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#base-url" class="nav-link">Base URL</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#root-health-endpoints" class="nav-link">Root &amp; Health Endpoints</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#document-processing-endpoints" class="nav-link">Document Processing Endpoints</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#user-management-endpoints" class="nav-link">User Management Endpoints</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#account-management-endpoints" class="nav-link">Account Management Endpoints</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#transaction-endpoints" class="nav-link">Transaction Endpoints</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#response-models" class="nav-link">Response Models</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#error-responses" class="nav-link">Error Responses</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#rate-limiting" class="nav-link">Rate Limiting</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#authentication" class="nav-link">Authentication</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="api-endpoints">API Endpoints</h1>
+<p>Complete reference for all API endpoints available in the Banking API.</p>
+<h2 id="base-url">Base URL</h2>
+<ul>
+<li><strong>Development</strong>: <code>http://localhost:8000</code></li>
+<li><strong>API Documentation</strong>: <code>http://localhost:8000/docs</code> (Swagger UI)</li>
+<li><strong>Alternative Docs</strong>: <code>http://localhost:8000/redoc</code> (ReDoc)</li>
+</ul>
+<h2 id="root-health-endpoints">Root &amp; Health Endpoints</h2>
+<h3 id="welcome-message">Welcome Message</h3>
+<pre><code>GET /
+</code></pre>
+<p>Returns welcome message and API information.</p>
+<p><strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;message&quot;: &quot;Welcome to Banking API&quot;,
+  &quot;version&quot;: &quot;0.0.0&quot;,
+  &quot;docs&quot;: &quot;/docs&quot;
+}
+</code></pre>
+<h3 id="health-check">Health Check</h3>
+<pre><code>GET /health
+</code></pre>
+<p>Health check endpoint to verify API status.</p>
+<p><strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;status&quot;: &quot;healthy&quot;
+}
+</code></pre>
+<h2 id="document-processing-endpoints">Document Processing Endpoints</h2>
+<p>Base path: <code>/api/v1/documents</code></p>
+<h3 id="upload-document">Upload Document</h3>
+<pre><code>POST /api/v1/documents/upload
+</code></pre>
+<p>Upload and process a document (PDF) with automatic table extraction and Excel export.</p>
+<p><strong>Request:</strong>
+- <strong>Content-Type</strong>: <code>multipart/form-data</code>
+- <strong>Parameters</strong>:
+  - <code>file</code> (required): Document file to upload
+  - <code>password</code> (optional): Password for encrypted/protected PDFs</p>
+<p><strong>Response:</strong> <code>ProcessorResponse</code></p>
+<pre><code class="language-json">{
+  &quot;status&quot;: &quot;success&quot;,
+  &quot;data&quot;: {
+    &quot;text&quot;: &quot;Extracted text content...&quot;,
+    &quot;tables&quot;: [
+      {
+        &quot;index&quot;: 0,
+        &quot;data&quot;: {...},
+        &quot;rows&quot;: 5,
+        &quot;columns&quot;: 4
+      }
+    ],
+    &quot;dataframes&quot;: [
+      {
+        &quot;data&quot;: [
+          {&quot;col1&quot;: &quot;val1&quot;, &quot;col2&quot;: &quot;val2&quot;},
+          ...
+        ],
+        &quot;columns&quot;: [&quot;col1&quot;, &quot;col2&quot;],
+        &quot;shape&quot;: [5, 4],
+        &quot;index&quot;: [0, 1, 2, 3, 4]
+      }
+    ],
+    &quot;excel_file&quot;: &quot;files/document_20260415_120000_tables.xlsx&quot;,
+    &quot;metadata&quot;: {...}
+  },
+  &quot;processor_type&quot;: &quot;pdf&quot;,
+  &quot;processing_time_ms&quot;: 1250.5,
+  &quot;extracted_text&quot;: &quot;Full text...&quot;,
+  &quot;page_count&quot;: 5,
+  &quot;tables&quot;: [...],
+  &quot;images&quot;: [...],
+  &quot;confidence_score&quot;: 0.95,
+  &quot;processed_at&quot;: &quot;2026-04-15T12:00:00Z&quot;
+}
+</code></pre>
+<p><strong>Status Codes:</strong>
+- <code>201 Created</code>: Document processed successfully
+- <code>400 Bad Request</code>: Invalid file or parameters
+- <code>413 Payload Too Large</code>: File exceeds size limit
+- <code>500 Internal Server Error</code>: Processing failed</p>
+<p><strong>Features:</strong>
+- Automatic table extraction from PDFs
+- DataFrame conversion with smart column handling
+- Excel file export with multiple sheets
+- Support for password-protected PDFs
+- Comprehensive metadata extraction</p>
+<h3 id="get-processing-configuration">Get Processing Configuration</h3>
+<pre><code>GET /api/v1/documents/config
+</code></pre>
+<p>Get current document processing configuration.</p>
+<p><strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;max_file_size_mb&quot;: 10,
+  &quot;max_file_size_bytes&quot;: 10485760
+}
+</code></pre>
+<h2 id="user-management-endpoints">User Management Endpoints</h2>
+<p>Base path: <code>/api/v1/users</code></p>
+<h3 id="create-user">Create User</h3>
+<pre><code>POST /api/v1/users
+</code></pre>
+<p>Create a new user.</p>
+<p><strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;John Doe&quot;,
+  &quot;email&quot;: &quot;john@example.com&quot;,
+  &quot;cpf&quot;: &quot;123.456.789-00&quot;
+}
+</code></pre>
+<p><strong>Response:</strong> <code>User</code></p>
+<h3 id="list-users">List Users</h3>
+<pre><code>GET /api/v1/users
+</code></pre>
+<p>Get list of all users.</p>
+<p><strong>Response:</strong> <code>List[User]</code></p>
+<h3 id="get-user">Get User</h3>
+<pre><code>GET /api/v1/users/{user_id}
+</code></pre>
+<p>Get specific user by ID.</p>
+<p><strong>Response:</strong> <code>User</code></p>
+<h3 id="delete-user">Delete User</h3>
+<pre><code>DELETE /api/v1/users/{user_id}
+</code></pre>
+<p>Delete a user.</p>
+<p><strong>Response:</strong> Success message</p>
+<h2 id="account-management-endpoints">Account Management Endpoints</h2>
+<p>Base path: <code>/api/v1/accounts</code></p>
+<h3 id="create-account">Create Account</h3>
+<pre><code>POST /api/v1/accounts
+</code></pre>
+<p>Create a new account for a user.</p>
+<p><strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;user_id&quot;: 1,
+  &quot;initial_balance&quot;: 1000.00
+}
+</code></pre>
+<p><strong>Response:</strong> <code>Account</code></p>
+<h3 id="get-account">Get Account</h3>
+<pre><code>GET /api/v1/accounts/{account_id}
+</code></pre>
+<p>Get specific account by ID.</p>
+<p><strong>Response:</strong> <code>Account</code></p>
+<h3 id="get-balance">Get Balance</h3>
+<pre><code>GET /api/v1/accounts/{account_id}/balance
+</code></pre>
+<p>Get current account balance.</p>
+<p><strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;account_id&quot;: 1,
+  &quot;balance&quot;: 1000.00
+}
+</code></pre>
+<h2 id="transaction-endpoints">Transaction Endpoints</h2>
+<p>Base path: <code>/api/v1/transactions</code></p>
+<h3 id="transfer-money">Transfer Money</h3>
+<pre><code>POST /api/v1/transactions/transfer
+</code></pre>
+<p>Transfer money between accounts.</p>
+<p><strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;from_account_id&quot;: 1,
+  &quot;to_account_id&quot;: 2,
+  &quot;amount&quot;: 100.00
+}
+</code></pre>
+<p><strong>Response:</strong> <code>Transaction</code></p>
+<h3 id="deposit">Deposit</h3>
+<pre><code>POST /api/v1/transactions/deposit
+</code></pre>
+<p>Deposit money into an account.</p>
+<p><strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;account_id&quot;: 1,
+  &quot;amount&quot;: 500.00
+}
+</code></pre>
+<p><strong>Response:</strong> <code>Transaction</code></p>
+<h3 id="withdraw">Withdraw</h3>
+<pre><code>POST /api/v1/transactions/withdraw
+</code></pre>
+<p>Withdraw money from an account.</p>
+<p><strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;account_id&quot;: 1,
+  &quot;amount&quot;: 200.00
+}
+</code></pre>
+<p><strong>Response:</strong> <code>Transaction</code></p>
+<h3 id="get-transaction">Get Transaction</h3>
+<pre><code>GET /api/v1/transactions/{transaction_id}
+</code></pre>
+<p>Get specific transaction by ID.</p>
+<p><strong>Response:</strong> <code>Transaction</code></p>
+<h2 id="response-models">Response Models</h2>
+<h3 id="processorresponse">ProcessorResponse</h3>
+<p>Complete response from document processing operations.</p>
+<p><strong>Fields:</strong>
+- <code>status</code>: Processing status (success, failed, partial_success, etc.)
+- <code>data</code>: Extracted structured data including tables and dataframes
+- <code>metadata</code>: Document metadata (page count, author, etc.)
+- <code>processor_type</code>: Type of processor used (e.g., "pdf")
+- <code>processing_time_ms</code>: Processing duration in milliseconds
+- <code>extracted_text</code>: Raw text extracted from document
+- <code>page_count</code>: Number of pages in document
+- <code>tables</code>: List of extracted tables
+- <code>images</code>: Information about images in document
+- <code>errors</code>: List of error messages (if any)
+- <code>warnings</code>: List of warning messages (if any)
+- <code>confidence_score</code>: Extraction confidence (0.0 to 1.0)
+- <code>processed_at</code>: Timestamp of processing</p>
+<h3 id="user">User</h3>
+<p>User model.</p>
+<p><strong>Fields:</strong>
+- <code>id</code>: User ID
+- <code>name</code>: User name
+- <code>email</code>: Email address
+- <code>cpf</code>: Brazilian tax ID</p>
+<h3 id="account">Account</h3>
+<p>Account model.</p>
+<p><strong>Fields:</strong>
+- <code>id</code>: Account ID
+- <code>user_id</code>: Owner user ID
+- <code>balance</code>: Current balance
+- <code>created_at</code>: Creation timestamp</p>
+<h3 id="transaction">Transaction</h3>
+<p>Transaction model.</p>
+<p><strong>Fields:</strong>
+- <code>id</code>: Transaction ID
+- <code>from_account_id</code>: Source account ID
+- <code>to_account_id</code>: Destination account ID
+- <code>amount</code>: Transaction amount
+- <code>type</code>: Transaction type (transfer, deposit, withdraw)
+- <code>timestamp</code>: Transaction timestamp</p>
+<h2 id="error-responses">Error Responses</h2>
+<p>All endpoints may return error responses in the following format:</p>
+<pre><code class="language-json">{
+  &quot;detail&quot;: &quot;Error message describing what went wrong&quot;
+}
+</code></pre>
+<p>Common HTTP status codes:
+- <code>400 Bad Request</code>: Invalid input or parameters
+- <code>404 Not Found</code>: Resource not found
+- <code>413 Payload Too Large</code>: File size exceeds limit
+- <code>422 Unprocessable Entity</code>: Validation error
+- <code>500 Internal Server Error</code>: Server-side error</p>
+<h2 id="rate-limiting">Rate Limiting</h2>
+<p>Currently, no rate limiting is implemented. For production use, consider implementing rate limiting to prevent abuse.</p>
+<h2 id="authentication">Authentication</h2>
+<p>Currently, no authentication is required. For production use, implement JWT-based authentication or similar security measures.</p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js"></script>
+        <script src="../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
