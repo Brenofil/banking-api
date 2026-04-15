@@ -34,7 +34,15 @@ class FileOperations(CrudInterface):
                           If None, uses FILE_LOCATION from environment or current directory.
         """
         if base_directory is None:
-            base_directory = os.getenv("FILE_LOCATION", ".")
+            # Try to get from environment variable
+            base_directory = os.getenv("FILE_LOCATION")
+
+            # If not set, default to "files" directory
+            if not base_directory:
+                base_directory = "files"
+                self.logger.info(
+                    "FILE_LOCATION not set, using default 'files' directory"
+                )
 
         self.base_directory = base_directory
 
