@@ -3,7 +3,8 @@ from io import BytesIO
 from typing_extensions import Any, List, Optional
 from app.interfaces.processor_interface import ProcessorInterface
 from app.models.documents.processor import ProcessorResponse
-from app.services.utils.logger import LoggerService
+from app.utils import markdown
+from app.utils.logger import LoggerService
 from app.services.docling import DoclingService
 from app.enums.processing_status import ProcessingStatus
 from app.enums.file_extensions import FileExtension
@@ -27,6 +28,7 @@ class PdfDocumentProcessor(ProcessorInterface):
 
     name: str = "PDF document processor"
     logger = LoggerService().get_logger(name)
+    markdownUtils = markdown.MarkdownUtils()
 
     def __init__(self):
         """Initialize the PDF processor with DoclingService."""
@@ -394,15 +396,60 @@ class PdfDocumentProcessor(ProcessorInterface):
 
     def postprocess(self, response: ProcessorResponse) -> ProcessorResponse:
         """
-        Optional postprocessing step after main processing.
+        Postprocessing step to convert tables to DataFrames.
 
         Args:
             response: Initial processor response
 
         Returns:
-            ProcessorResponse: Enhanced processor response
+            ProcessorResponse: Enhanced processor response with dataframes field
         """
-        self.logger.info(f"No postprocessing implemented for {self.name}")
+        self.logger.info(f"Postprocessing response for {self.name}")
+
+        # Only process if we have data and tables
+        if not response.data or not response.tables:
+            self.logger.debug("No tables to convert to DataFrames")
+            return response
+
+        try:
+            # Convert tables to DataFrames
+            dataframes = self.markdownUtils.read_pdf_response_to_dataframes(
+                response.data
+            )
+
+            # Convert DataFrames to serializable format (dict)
+            if isinstance(dataframes, list):
+                # Multiple DataFrames - convert each to dict
+                serializable_dfs = [
+                    {
+                        "data": df.to_dict(orient="records"),
+                        "columns": df.columns.tolist(),
+                        "shape": df.shape,
+                        "index": list(range(len(df))),
+                    }
+                    for df in dataframes
+                ]
+                if response.data:
+                    response.data["dataframes"] = serializable_dfs
+                    self.logger.info(
+                        f"Successfully added {len(serializable_dfs)} DataFrames to response"
+                    )
+            else:
+                # Single DataFrame - convert to dict
+                serializable_df = {
+                    "data": dataframes.to_dict(orient="records"),
+                    "columns": dataframes.columns.tolist(),
+                    "shape": dataframes.shape,
+                    "index": list(range(len(dataframes))),
+                }
+                if response.data:
+                    response.data["dataframes"] = serializable_df
+                    self.logger.info("Successfully added single DataFrame to response")
+
+        except Exception as e:
+            self.logger.warning(f"Failed to convert tables to DataFrames: {str(e)}")
+            # Don't fail the entire response, just log the warning
+
         return response
 
     def get_metadata(self, document_data: bytes) -> Optional[dict]:

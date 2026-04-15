@@ -1,4 +1,5 @@
 import os
+import re
 from io import BytesIO
 from typing import Dict, Any, Optional, List, Union
 from pathlib import Path
@@ -7,8 +8,9 @@ from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling.datamodel.base_models import InputFormat
 from docling.datamodel.pipeline_options import PdfPipelineOptions
 from docling_core.types.io import DocumentStream
-from app.services.utils.logger import LoggerService
+from app.utils.logger import LoggerService
 from app.interfaces.docling_service_interface import DoclingServiceInterface
+from app.utils.markdown import MarkdownUtils
 
 
 class DoclingService(DoclingServiceInterface):
@@ -26,6 +28,7 @@ class DoclingService(DoclingServiceInterface):
 
     name: str = "Docling Service"
     logger = LoggerService().get_logger(name)
+    markdownUtils = MarkdownUtils()
 
     def __init__(self):
         """
@@ -216,7 +219,7 @@ class DoclingService(DoclingServiceInterface):
                 doc.export_to_markdown() if hasattr(doc, "export_to_markdown") else ""
             )
 
-            # Extract tables
+            # Extract tables from Docling's table detection
             tables = []
             if hasattr(doc, "tables") and doc.tables:
                 for idx, table in enumerate(doc.tables):
@@ -237,12 +240,33 @@ class DoclingService(DoclingServiceInterface):
                             "data": table_dict,
                             "rows": rows,
                             "columns": columns,
+                            "source": "docling_detection",
                         }
                         tables.append(table_data)
                     except Exception as e:
                         # Log the error but continue processing other tables
                         self.logger.warning(f"Failed to extract table {idx}: {str(e)}")
                         continue
+
+            # Also extract markdown tables from the text
+            markdown_tables = self.markdownUtils._parse_markdown_tables(extracted_text)
+
+            # Deduplicate: only add markdown tables that aren't similar to existing ones
+            for md_table in markdown_tables:
+                if not self._is_duplicate_table(md_table, tables):
+                    tables.append(
+                        {
+                            "index": len(tables),
+                            "data": md_table["data"],
+                            "rows": md_table["rows"],
+                            "columns": md_table["columns"],
+                            "source": "markdown_parsing",
+                        }
+                    )
+                else:
+                    self.logger.debug(
+                        f"Skipping duplicate markdown table with {md_table['rows']} rows and {md_table['columns']} columns"
+                    )
 
             # Extract metadata
             metadata = {}
@@ -283,6 +307,61 @@ class DoclingService(DoclingServiceInterface):
         except Exception as e:
             self.logger.error(f"Failed to extract structured data: {str(e)}")
             raise RuntimeError(f"Data extraction failed: {str(e)}")
+
+    def _is_duplicate_table(
+        self, new_table: Dict[str, Any], existing_tables: List[Dict[str, Any]]
+    ) -> bool:
+        """
+        Check if a table is a duplicate of any existing table.
+
+        A table is considered duplicate if it has the same dimensions (rows/columns)
+        and similar content (>80% matching cells).
+
+        Args:
+            new_table: New table to check
+            existing_tables: List of existing tables
+
+        Returns:
+            bool: True if table is a duplicate, False otherwise
+        """
+        new_rows = new_table.get("rows", 0)
+        new_cols = new_table.get("columns", 0)
+        new_data = new_table.get("data", {})
+
+        for existing in existing_tables:
+            existing_rows = existing.get("rows", 0)
+            existing_cols = existing.get("columns", 0)
+
+            # Check if dimensions match
+            if new_rows != existing_rows or new_cols != existing_cols:
+                continue
+
+            # Check content similarity
+            existing_data = existing.get("data", {})
+
+            # Count matching cells
+            total_cells = 0
+            matching_cells = 0
+
+            for col_key in new_data.keys():
+                if col_key in existing_data:
+                    new_col = new_data[col_key]
+                    existing_col = existing_data[col_key]
+
+                    for row_key in new_col.keys():
+                        total_cells += 1
+                        if row_key in existing_col:
+                            # Compare cell values (strip whitespace for comparison)
+                            new_val = str(new_col[row_key]).strip()
+                            existing_val = str(existing_col[row_key]).strip()
+                            if new_val == existing_val:
+                                matching_cells += 1
+
+            # If >80% of cells match, consider it a duplicate
+            if total_cells > 0 and (matching_cells / total_cells) > 0.8:
+                return True
+
+        return False
 
     def configure_docx_options(self, **kwargs) -> None:
         """

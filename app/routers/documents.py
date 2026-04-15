@@ -10,8 +10,11 @@ Other endpoints will be developed as needed
 
 import os
 from typing import Optional
+from datetime import datetime
+import pandas as pd
 
-from app.services.utils.logger import LoggerService
+from app.utils.logger import LoggerService
+from app.utils.file_operations import FileOperations
 from app.processors.factory import DocumentProcessorFactory
 from app.models.documents.processor import ProcessorResponse
 from app.interfaces.processor_interface import ProcessorInterface
@@ -119,6 +122,42 @@ async def upload_document(
             f"Pages: {response.page_count}, "
             f"Tables: {len(response.tables) if response.tables else 0}"
         )
+
+        # Save DataFrames to Excel file if available
+        if response.data and "dataframes" in response.data:
+            try:
+                dataframes_data = response.data["dataframes"]
+
+                # Reconstruct DataFrames from serialized format
+                if isinstance(dataframes_data, list):
+                    # Multiple DataFrames
+                    dataframes = [
+                        pd.DataFrame(df_data["data"]) for df_data in dataframes_data
+                    ]
+                else:
+                    # Single DataFrame
+                    dataframes = pd.DataFrame(dataframes_data["data"])
+
+                # Generate filename with timestamp
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                base_filename = (
+                    file.filename.rsplit(".", 1)[0] if file.filename else "document"
+                )
+                excel_filename = f"{base_filename}_{timestamp}_tables.xlsx"
+
+                # Save to file using FileOperations
+                file_ops = FileOperations()
+                saved_path = file_ops.create(
+                    filename=excel_filename, content=dataframes, overwrite=True
+                )
+
+                # Add file path to response
+                response.data["excel_file"] = saved_path
+                logger.info(f"Saved DataFrames to Excel file: {saved_path}")
+
+            except Exception as e:
+                logger.warning(f"Failed to save DataFrames to Excel: {str(e)}")
+                # Don't fail the request, just log the warning
 
         return response
 

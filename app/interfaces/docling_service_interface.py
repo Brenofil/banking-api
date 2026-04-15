@@ -382,6 +382,3 @@ def convert_document(
                 - format_breakdown: Number of documents processed per format
         """
         pass
-
-
-# Made with Bob
