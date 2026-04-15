@@ -1,0 +1,12 @@
+site_name: Banking API
+nav:
+- Home: index.md
+- About: about.md
+- Architecture: architecture.md
+- Endpoints: endpoints.md
+- Configuration: configuration.md
+links:
+- About: about.md
+- Architecture: architecture.md
+- Endpoints: endpoints.md
+- Configuration: configuration.md

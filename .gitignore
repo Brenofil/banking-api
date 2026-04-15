@@ -44,7 +44,16 @@ ENV/
 
 # Logs
 *.log
+logs/
+
+# Exported files
+files/
+*.xlsx
+*.csv
 
 # OS
 .DS_Store
 Thumbs.db
+
+#MkDocs
+site/
