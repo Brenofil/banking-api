@@ -1,0 +1,764 @@
+openapi: 3.0.3
+info:
+  title: Banking API
+  description: A simple banking API built with FastAPI
+  version: 0.1.0
+  contact:
+    name: API Support
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+  - url: https://api.example.com
+    description: Production server (update as needed)
+
+tags:
+  - name: root
+    description: Root and health check endpoints
+  - name: documents
+    description: Document processing endpoints
+  - name: users
+    description: User management endpoints (currently inactive)
+  - name: accounts
+    description: Account management endpoints (currently inactive)
+  - name: transactions
+    description: Transaction management endpoints (currently inactive)
+
+paths:
+  /:
+    get:
+      tags:
+        - root
+      summary: Root endpoint
+      description: Welcome endpoint with API information
+      operationId: root
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Welcome to Banking API
+                  version:
+                    type: string
+                    example: 0.1.0
+                  docs:
+                    type: string
+                    example: /docs
+                  redoc:
+                    type: string
+                    example: /redoc
+
+  /health:
+    get:
+      tags:
+        - root
+      summary: Health check endpoint
+      description: Check API health status
+      operationId: health_check
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+
+  /api/v1/documents/upload:
+    post:
+      tags:
+        - documents
+      summary: Upload and process a document
+      description: |
+        Upload and process a document through the complete pipeline.
+        
+        This endpoint:
+        1. Validates file size and content
+        2. Determines appropriate processor based on file extension
+        3. Preprocesses the document
+        4. Processes and extracts structured data using Docling
+        5. Handles password-protected documents (e.g., encrypted PDFs)
+        6. Returns complete processing results
+        
+        For banking documents with sensitive information (credit cards, account numbers),
+        PDFs are often password-protected. Provide the password parameter to process
+        these encrypted documents.
+        
+        Maximum file size: 10 MB (configurable via MAX_FILE_SIZE_MB environment variable)
+      operationId: upload_document
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Document file to upload and process
+                password:
+                  type: string
+                  description: Password for encrypted/protected documents (e.g., banking PDFs with sensitive information)
+                  nullable: true
+      responses:
+        '201':
+          description: Document processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessorResponse'
+        '400':
+          description: Bad request - Invalid file or validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '413':
+          description: Request entity too large - File size exceeds maximum
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '500':
+          description: Internal server error - Failed to process document
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /api/v1/documents/config:
+    get:
+      tags:
+        - documents
+      summary: Get current processing configuration
+      description: Returns configuration settings for document processing
+      operationId: get_processing_config
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  max_file_size_mb:
+                    type: integer
+                    example: 10
+                  max_file_size_bytes:
+                    type: integer
+                    example: 10485760
+
+  /api/v1/users/:
+    post:
+      tags:
+        - users
+      summary: Create a new user
+      description: Create a new user account
+      operationId: create_user
+      deprecated: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request - Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+    get:
+      tags:
+        - users
+      summary: List all users
+      description: Get a list of all registered users
+      operationId: list_users
+      deprecated: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /api/v1/users/{user_id}:
+    get:
+      tags:
+        - users
+      summary: Get a specific user by ID
+      description: Retrieve user details by user ID
+      operationId: get_user
+      deprecated: true
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: User ID
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+    delete:
+      tags:
+        - users
+      summary: Delete a user
+      description: Remove a user from the system
+      operationId: delete_user
+      deprecated: true
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: User ID
+      responses:
+        '204':
+          description: User deleted successfully
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /api/v1/accounts/:
+    post:
+      tags:
+        - accounts
+      summary: Create a new account
+      description: Create a new bank account for a user
+      operationId: create_account
+      deprecated: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountCreate'
+      responses:
+        '201':
+          description: Account created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+    get:
+      tags:
+        - accounts
+      summary: List all accounts
+      description: Get all accounts, optionally filtered by user_id
+      operationId: list_accounts
+      deprecated: true
+      parameters:
+        - name: user_id
+          in: query
+          required: false
+          schema:
+            type: integer
+            nullable: true
+          description: Filter accounts by user ID
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+
+  /api/v1/accounts/{account_id}:
+    get:
+      tags:
+        - accounts
+      summary: Get a specific account by ID
+      description: Retrieve account details by account ID
+      operationId: get_account
+      deprecated: true
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Account ID
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+    delete:
+      tags:
+        - accounts
+      summary: Delete an account
+      description: Remove an account from the system
+      operationId: delete_account
+      deprecated: true
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Account ID
+      responses:
+        '204':
+          description: Account deleted successfully
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /api/v1/accounts/{account_id}/balance:
+    get:
+      tags:
+        - accounts
+      summary: Get account balance
+      description: Retrieve the current balance of an account
+      operationId: get_balance
+      deprecated: true
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Account ID
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  account_id:
+                    type: integer
+                  account_number:
+                    type: string
+                  balance:
+                    type: number
+                    format: float
+                  currency:
+                    type: string
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /api/v1/transactions/:
+    post:
+      tags:
+        - transactions
+      summary: Create a new transaction
+      description: Create a transfer between two accounts
+      operationId: create_transaction
+      deprecated: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionCreate'
+      responses:
+        '201':
+          description: Transaction created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Bad request - Insufficient funds
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+    get:
+      tags:
+        - transactions
+      summary: List all transactions
+      description: Get all transactions, optionally filtered by account_id
+      operationId: list_transactions
+      deprecated: true
+      parameters:
+        - name: account_id
+          in: query
+          required: false
+          schema:
+            type: integer
+            nullable: true
+          description: Filter transactions by account ID
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+
+  /api/v1/transactions/deposit:
+    post:
+      tags:
+        - transactions
+      summary: Deposit money into an account
+      description: Add funds to a specified account
+      operationId: deposit
+      deprecated: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepositRequest'
+      responses:
+        '201':
+          description: Deposit successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /api/v1/transactions/withdraw:
+    post:
+      tags:
+        - transactions
+      summary: Withdraw money from an account
+      description: Remove funds from a specified account
+      operationId: withdraw
+      deprecated: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WithdrawalRequest'
+      responses:
+        '201':
+          description: Withdrawal successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Bad request - Insufficient funds
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+  /api/v1/transactions/{transaction_id}:
+    get:
+      tags:
+        - transactions
+      summary: Get a specific transaction by ID
+      description: Retrieve transaction details by transaction ID
+      operationId: get_transaction
+      deprecated: true
+      parameters:
+        - name: transaction_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Transaction ID
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '404':
+          description: Transaction not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+
+components:
+  schemas:
+    HTTPError:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Error message
+
+    ProcessorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Processing status
+        processing_time_ms:
+          type: number
+          format: float
+          description: Processing time in milliseconds
+        page_count:
+          type: integer
+          description: Number of pages processed
+        tables:
+          type: array
+          items:
+            type: object
+          description: Extracted tables from document
+        data:
+          type: object
+          description: Extracted data including dataframes and metadata
+          properties:
+            dataframes:
+              type: array
+              items:
+                type: object
+            excel_file:
+              type: string
+              description: Path to saved Excel file with extracted tables
+
+    UserCreate:
+      type: object
+      required:
+        - email
+        - full_name
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address
+        full_name:
+          type: string
+          description: User full name
+        phone:
+          type: string
+          description: User phone number
+          nullable: true
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: User ID
+        email:
+          type: string
+          format: email
+          description: User email address
+        full_name:
+          type: string
+          description: User full name
+        phone:
+          type: string
+          description: User phone number
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          description: Account creation timestamp
+        is_active:
+          type: boolean
+          description: Whether the user account is active
+
+    AccountCreate:
+      type: object
+      required:
+        - account_type
+        - currency
+        - user_id
+      properties:
+        account_type:
+          type: string
+          description: Type of account (e.g., checking, savings)
+        currency:
+          type: string
+          description: Account currency code (e.g., USD, EUR)
+        user_id:
+          type: integer
+          description: ID of the user who owns this account
+
+    Account:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Account ID
+        account_number:
+          type: string
+          description: Unique account number
+        account_type:
+          type: string
+          description: Type of account
+        currency:
+          type: string
+          description: Account currency code
+        balance:
+          type: number
+          format: float
+          description: Current account balance
+        user_id:
+          type: integer
+          description: ID of the user who owns this account
+        created_at:
+          type: string
+          format: date-time
+          description: Account creation timestamp
+        is_active:
+          type: boolean
+          description: Whether the account is active
+
+    TransactionCreate:
+      type: object
+      required:
+        - from_account_id
+        - to_account_id
+        - amount
+      properties:
+        from_account_id:
+          type: integer
+          description: Source account ID
+        to_account_id:
+          type: integer
+          description: Destination account ID
+        amount:
+          type: number
+          format: float
+          description: Transaction amount
+          minimum: 0
+        description:
+          type: string
+          description: Transaction description
+          nullable: true
+
+    DepositRequest:
+      type: object
+      required:
+        - account_id
+        - amount
+      properties:
+        account_id:
+          type: integer
+          description: Account ID to deposit into
+        amount:
+          type: number
+          format: float
+          description: Deposit amount
+          minimum: 0
+        description:
+          type: string
+          description: Deposit description
+          nullable: true
+
+    WithdrawalRequest:
+      type: object
+      required:
+        - account_id
+        - amount
+      properties:
+        account_id:
+          type: integer
+          description: Account ID to withdraw from
+        amount:
+          type: number
+          format: float
+          description: Withdrawal amount
+          minimum: 0
+        description:
+          type: string
+          description: Withdrawal description
+          nullable: true
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Transaction ID
+        from_account_id:
+          type: integer
+          description: Source account ID (0 for external deposits)
+        to_account_id:
+          type: integer
+          description: Destination account ID (0 for external withdrawals)
+        amount:
+          type: number
+          format: float
+          description: Transaction amount
+        description:
+          type: string
+          description: Transaction description
+          nullable: true
+        transaction_type:
+          type: string
+          enum: [transfer, deposit, withdrawal]
+          description: Type of transaction
+        status:
+          type: string
+          description: Transaction status
+        created_at:
+          type: string
+          format: date-time
+          description: Transaction timestamp

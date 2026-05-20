@@ -13,6 +13,7 @@ from typing import Optional
 from datetime import datetime
 import pandas as pd
 
+from app.utils import file_operations
 from app.utils.logger import LoggerService
 from app.utils.file_operations import FileOperations
 from app.processors.factory import DocumentProcessorFactory
@@ -70,21 +71,16 @@ async def upload_document(
     logger.info(f"Received document upload request: {file.filename}")
 
     content: bytes = await file.read()
-    file_size: int = len(content)
 
     # Validate file size
-    if file_size > MAX_FILE_SIZE_BYTES:
-        logger.error(f"File size {file_size} exceeds maximum {MAX_FILE_SIZE_BYTES}")
+    file_ops = FileOperations()
+    is_valid: bool = file_ops.validate_size(content)
+
+    if not is_valid:
+        logger.error(f"File validation failed for {file.filename}")
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail=f"File size ({file_size / (1024 * 1024):.2f} MB) exceeds maximum allowed size ({MAX_FILE_SIZE_MB} MB)",
-        )
-
-    # Validate empty files
-    if file_size == 0:
-        logger.error("Empty file received")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="File is empty"
+            detail=f"File size exceeds maximum allowed size of {MAX_FILE_SIZE_MB}MB or file is empty",
         )
 
     try:

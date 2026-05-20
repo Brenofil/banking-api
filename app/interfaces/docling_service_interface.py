@@ -101,38 +101,37 @@ class DoclingServiceInterface(ABC):
         """
         pass
 
+    @abstractmethod
+    def convert_document(
+        self,
+        document_bytes: bytes,
+        source_format: str = "pdf",
+        password: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Convert document bytes into a structured format.
 
-@abstractmethod
-def convert_document(
-    self,
-    document_bytes: bytes,
-    source_format: str = "pdf",
-    password: Optional[str] = None,
-) -> Dict[str, Any]:
-    """
-    Convert document bytes into a structured format.
+        Args:
+            document_bytes: Raw document bytes to be converted
+            source_format: Format of the source document (e.g., "pdf", "docx", "xlsx")
+            password: Password for encrypted documents (optional, overrides configured password)
 
-    Args:
-        document_bytes: Raw document bytes to be converted
-        source_format: Format of the source document (e.g., "pdf", "docx", "xlsx")
-        password: Password for encrypted documents (optional, overrides configured password)
+        Returns:
+            Dict[str, Any]: Structured document data containing:
+                - text: Extracted text content
+                - tables: List of extracted tables
+                - metadata: Document metadata
+                - page_count: Number of pages (if applicable)
+                - images: Information about images
+                - sheets: List of sheets (for spreadsheets)
+                - formulas: Extracted formulas (for spreadsheets)
+                - is_encrypted: Whether document was encrypted
 
-    Returns:
-        Dict[str, Any]: Structured document data containing:
-            - text: Extracted text content
-            - tables: List of extracted tables
-            - metadata: Document metadata
-            - page_count: Number of pages (if applicable)
-            - images: Information about images
-            - sheets: List of sheets (for spreadsheets)
-            - formulas: Extracted formulas (for spreadsheets)
-            - is_encrypted: Whether document was encrypted
-
-    Raises:
-        ValueError: If document_bytes is empty or invalid, or if password is required but not provided
-        RuntimeError: If conversion fails or password is incorrect
-    """
-    pass
+        Raises:
+            ValueError: If document_bytes is empty or invalid, or if password is required but not provided
+            RuntimeError: If conversion fails or password is incorrect
+        """
+        pass
 
     @abstractmethod
     def convert_document_async(

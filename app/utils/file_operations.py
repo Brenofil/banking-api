@@ -7,6 +7,7 @@ import glob
 from pathlib import Path
 from typing import Any, Optional, Union, List
 from io import BytesIO
+from fastapi import UploadFile
 import pandas as pd
 
 from app.interfaces.crud_interface import CrudInterface
@@ -24,6 +25,10 @@ class FileOperations(CrudInterface):
 
     name: str = "File Operations"
     logger = LoggerService().get_logger(name)
+
+    # Get max file size from environment variable (default: 10 MB)
+    MAX_FILE_SIZE_MB: int = int(os.getenv("MAX_FILE_SIZE_MB", "10"))
+    MAX_FILE_SIZE_BYTES: int = MAX_FILE_SIZE_MB * 1024 * 1024
 
     def __init__(self, base_directory: Optional[str] = None):
         """
@@ -340,3 +345,35 @@ class FileOperations(CrudInterface):
 
         except Exception as e:
             raise IOError(f"Failed to write Excel file: {str(e)}")
+
+    def validate_size(self, content: bytes | None = None) -> bool:
+        """
+        Validates a file size, returns False for either empty or undefined Files
+
+        Args:
+            **kwargs: Required parameters:
+                -content (bytes): the content of a file. Default is None
+
+        Returns:
+            bool: True if the file size is valid, False otherwise
+        """
+
+        if not content:
+            self.logger.error("Should not measure undefined content")
+            raise ValueError("content parameter is required")
+
+        size: int = len(content)
+
+        # Validates file size
+        if size > self.MAX_FILE_SIZE_BYTES:
+            self.logger.error(
+                f"File size {size} exceeds maximum {self.MAX_FILE_SIZE_BYTES}"
+            )
+            return False
+
+        if size == 0:
+            self.logger.error(f"Empty file received")
+            return False
+
+        # Else return True
+        return True
