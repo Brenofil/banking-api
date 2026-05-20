@@ -19,12 +19,30 @@ class Event(BaseModel):
 
     start_time: date
 
-    finish_time: date
+    finish_time: date | None = None
 
     status: EventStatus
 
-    def __init__(self) -> None:
-        pass
+    def __init__(
+        self,
+        title: str,
+        start_time: date,
+        status: EventStatus,
+    ) -> None:
+        """
+        Initialize an Event.
+
+        Args:
+            title: Event title
+            start_time: Event start date
+            status: Event status
+            finish_time: Event finish date (optional, defaults to None)
+        """
+        super().__init__(
+            title=title,
+            start_time=start_time,
+            status=status,
+        )
 
     def getTitle(self) -> str:
         """
@@ -57,12 +75,12 @@ class Event(BaseModel):
         """
         self.start_time = date.today()
 
-    def getFinishTime(self) -> date:
+    def getFinishTime(self) -> date | None:
         """
         Get the event's finish time
 
         Returns:
-            date: the finish time of the event
+            date | None: the finish time of the event, or None if not set
         """
         return self.finish_time
 

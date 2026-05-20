@@ -1,7 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.enums.processing_status import ProcessingStatus
 
@@ -61,7 +61,7 @@ class ProcessorResponse(BaseModel):
     )
 
     processed_at: datetime = Field(
-        default_factory=datetime.utcnow,
+        default_factory=lambda: datetime.now(timezone.utc),
         description="Timestamp when processing was completed",
     )
 
@@ -72,25 +72,8 @@ class ProcessorResponse(BaseModel):
         description="Confidence score of the extraction (0.0 to 1.0)",
     )
 
-    class Config:
-        """
-        Pydantic model configuration.
-
-        The Config class is a special inner class in Pydantic models that allows you to
-        customize the behavior and documentation of your model.
-
-        json_schema_extra: Provides example data for API documentation (OpenAPI/Swagger).
-                          This example appears in auto-generated API docs, helping developers
-                          understand the expected response structure and data types.
-
-        Other common Config options (not used here but available):
-        - arbitrary_types_allowed: Allow custom types that aren't standard Python types
-        - use_enum_values: Use enum values instead of enum objects in serialization
-        - validate_assignment: Validate data when fields are assigned after initialization
-        - frozen: Make the model immutable after creation
-        """
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "status": "success",
                 "data": {
@@ -114,3 +97,4 @@ class ProcessorResponse(BaseModel):
                 "confidence_score": 0.95,
             }
         }
+    )
