@@ -32,7 +32,7 @@ logger = LoggerService().get_logger("Document Route")
 
 
 @router.post(
-    "/upload",
+    "/process",
     response_model=ProcessorResponse,
     status_code=status.HTTP_201_CREATED,
 )

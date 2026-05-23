@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 
 
 class BaseServiceInterface(ABC):
@@ -26,7 +27,7 @@ class BaseServiceInterface(ABC):
         pass
 
     @abstractmethod
-    def registerError(self) -> None:
+    def registerError(self, error: Exception, context: Optional[dict] = None) -> None:
         """
         Method responsible for registering an action error within a service.
 
