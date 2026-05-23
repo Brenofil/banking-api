@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Testing
+.pytest_cache/
+.coverage
+.coveragerc
+htmlcov/
+.tox/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+docs/
+*.md
+mkdocs.yml
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Environment files (will be provided via docker-compose)
+.env
+.env.*
+
+# Poetry (keep poetry.lock for reproducible builds)
+# poetry.lock
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+tests/
+.pre-commit-config.yaml
+LICENSE
+openapi.yaml
