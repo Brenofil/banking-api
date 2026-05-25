@@ -8,11 +8,11 @@ available are:
 Other endpoints will be developed as needed
 """
 
-import os
 from typing import Optional
 from datetime import datetime
 import pandas as pd
 
+from app.constants.file_size import FileSizeContants
 from app.utils import file_operations
 from app.utils.logger import LoggerService
 from app.utils.file_operations import FileOperations
@@ -23,10 +23,6 @@ from app.models.documents.document import DocumentProcessingResponse
 from fastapi import APIRouter, HTTPException, status, UploadFile, File, Form
 
 router = APIRouter()
-
-# Get max file size from environment variable (default: 10 MB)
-MAX_FILE_SIZE_MB = int(os.getenv("MAX_FILE_SIZE_MB", "10"))
-MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
 
 logger = LoggerService().get_logger("Document Route")
 
@@ -80,7 +76,7 @@ async def upload_document(
         logger.error(f"File validation failed for {file.filename}")
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail=f"File size exceeds maximum allowed size of {MAX_FILE_SIZE_MB}MB or file is empty",
+            detail=f"File size exceeds maximum allowed size of {FileSizeContants.MAX_FILE_SIZE_MB}MB or file is empty",
         )
 
     try:
@@ -175,6 +171,6 @@ async def upload_document(
 async def get_processing_config():
     """Get current processing configuration"""
     return {
-        "max_file_size_mb": MAX_FILE_SIZE_MB,
-        "max_file_size_bytes": MAX_FILE_SIZE_BYTES,
+        "max_file_size_mb": FileSizeContants.MAX_FILE_SIZE_MB,
+        "max_file_size_bytes": FileSizeContants.MAX_FILE_SIZE_BYTES,
     }

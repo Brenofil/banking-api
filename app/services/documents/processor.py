@@ -1,10 +1,10 @@
 from datetime import datetime
 from typing import Any, Dict, Optional
 from fastapi import HTTPException, UploadFile, status
+from app.constants.file_size import FileSizeContants
 from app.interfaces.processor_interface import ProcessorInterface
 from app.models.documents.processor import ProcessorResponse
 from app.processors.factory import DocumentProcessorFactory
-from app.routers.documents import MAX_FILE_SIZE_MB
 from app.services.base_service import BaseService
 from app.utils.file_operations import FileOperations
 import pandas as pd
@@ -23,34 +23,41 @@ class DocumentProcessorService(BaseService):
 
     async def process_document(
         self, file: UploadFile, password: Optional[str] = None
-    ) -> None:
-        # TODO :: add a try catch to execute the pipeline,
-        # only them it should register start, success or error
+    ) -> ProcessorResponse:
 
         filename: str = file.filename or "documento"
 
-        # [OK] 1. Validates file size and content
-        self.logger.info("[1|6] reading file content")
-        content: bytes = await self.read_from_file(file)
-        # [OK] 2. Determines
-        self.logger.info("[2|6] identifying appropriate processor")
-        processor: ProcessorInterface = self._identify_processor(filename)
-        # [OK] 3. Preprocesses the document
-        self.logger.info("[3|6] Preprocessing document content")
+        try:
+            # [OK] 1. Validates file size and content
+            self.logger.info("[1|5] reading file content")
+            content: bytes = await self.read_from_file(file)
 
-        processed: ProcessorResponse = self.preprocess_document_content(
-            processor, content, password
-        )
+            # [OK] 2. Determines
+            self.logger.info("[2|5] identifying appropriate processor")
+            processor: ProcessorInterface = self._identify_processor(filename)
 
-        # self._handle_dataframes(filename, processed.data)
-        # 4. Processes and extracts structured data using Docling
-        self.logger.info("[4|6] Processing and extracting data with Docling")
-        # 5. Handles password-protected documents (e.g., encrypted PDFs)
-        self.logger.info("[5|6] Handling password-protected documents")
-        # 6. Returns complete processing results
-        self.logger.info("[6|6] Returning processment results")
+            # [OK] 3. Preprocesses the document
+            self.logger.info("[3|5] Preprocessing document content")
 
-        pass
+            processed: ProcessorResponse = self.process_content(
+                processor, content, password
+            )
+
+            # [OK] 4. Processes and extracts structured data using Docling
+            self.logger.info("[4|5] Processing and extracting data with Docling")
+
+            if processed.data and "dataframes" in processed.data:
+                self._handle_dataframes(filename, processed.data)
+            else:
+                self.logger.info("No dataframes available in document")
+
+            # [OK] 6. Returns complete processing results
+            self.logger.info("[5|5] Returning processment results")
+
+            return processed
+        except Exception as e:
+            self.logger.error(f"Unable to process document due to {str(e)}")
+            raise e
 
     async def read_from_file(self, file: UploadFile) -> bytes:
         """_summary_
@@ -74,7 +81,7 @@ class DocumentProcessorService(BaseService):
 
             http_exception: HTTPException = HTTPException(
                 status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-                detail=f"File size exceeds maximum allowed size of {MAX_FILE_SIZE_MB}MB or file is empty",
+                detail=f"File size exceeds maximum allowed size of {FileSizeContants.MAX_FILE_SIZE_MB}MB or file is empty",
             )
 
             raise http_exception
@@ -83,13 +90,23 @@ class DocumentProcessorService(BaseService):
 
         return content
 
-    def preprocess_document_content(
+    def process_content(
         self,
         processor: ProcessorInterface,
         content: bytes,
         password: Optional[str] = None,
     ) -> ProcessorResponse:
+        """
+        _summary_
 
+        Args:
+            processor (ProcessorInterface): _description_
+            content (bytes): _description_
+            password (Optional[str], optional): _description_. Defaults to None.
+
+        Returns:
+            ProcessorResponse: _description_
+        """
         if password:
             self.logger.info("Password provided for encrypted document processing")
 
@@ -105,9 +122,6 @@ class DocumentProcessorService(BaseService):
         )
 
         return processed
-
-    def process_document_content(self) -> None:
-        pass
 
     def _identify_processor(self, filename: Optional[str] = None) -> ProcessorInterface:
         """
@@ -148,39 +162,36 @@ class DocumentProcessorService(BaseService):
             Dict[str, Any]: A dictionary with the DataFrames and previous data from the document processment pipeline
         """
 
-        if data and "dataframes" in data:
-            self.logger.debug("Handling dataframes from processor response")
-            try:
-                dataframe_data = data["dataframes"]
+        self.logger.debug("Handling dataframes from processor response")
+        try:
+            dataframe_data = data["dataframes"]
 
-                # Reconstructr DataFrames from serialized format
-                dataframes = [
-                    pd.DataFrame(df["data"])
-                    for df in (
-                        dataframe_data
-                        if isinstance(dataframe_data, list)
-                        else [dataframe_data]
-                    )
-                ]
-
-                # Generate filename with timestamp
-                timestamp: str = datetime.now().strftime("%Y%m%d_%H%M%S")
-                base_filename: str = filename.rsplit(".", 1)[0]
-
-                excel_filename: str = f"{base_filename}_{timestamp}_tables.xlsx"
-
-                # Save to file
-                saved_path: str = self.file_operations.create(
-                    filename=excel_filename, content=dataframes, overwrite=True
+            # Reconstructr DataFrames from serialized format
+            dataframes = [
+                pd.DataFrame(df["data"])
+                for df in (
+                    dataframe_data
+                    if isinstance(dataframe_data, list)
+                    else [dataframe_data]
                 )
+            ]
 
-                data["excel_file"] = saved_path
-                self.logger.info(f"Saved DataFrames to Excel file @ {saved_path}")
+            # Generate filename with timestamp
+            timestamp: str = datetime.now().strftime("%Y%m%d_%H%M%S")
+            base_filename: str = filename.rsplit(".", 1)[0]
 
-            except Exception as e:
-                self.logger.error(f"Failed to save DataFrames to Excel: {str(e)}")
-                # Don't raise exception, just log the warning
-        else:
-            self.logger.warning("No dataframes available in processor response")
+            excel_filename: str = f"{base_filename}_{timestamp}_tables.xlsx"
+
+            # Save to file
+            saved_path: str = self.file_operations.create(
+                filename=excel_filename, content=dataframes, overwrite=True
+            )
+
+            data["excel_file"] = saved_path
+            self.logger.info(f"Saved DataFrames to Excel file @ {saved_path}")
+
+        except Exception as e:
+            self.logger.error(f"Failed to save DataFrames to Excel: {str(e)}")
+            # Don't raise exception, just log the warning
 
         return data

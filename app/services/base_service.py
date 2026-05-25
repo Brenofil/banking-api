@@ -24,7 +24,7 @@ class BaseService(BaseServiceInterface):
 
     # TODO should add event repository actions
     def registerSuccess(self) -> None:
-        self.logger.success("Registering success of event for service")
+        self.logger.info("Registering success of event for service")
         pass
 
     # TODO should add event repository actions

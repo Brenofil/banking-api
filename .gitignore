@@ -60,3 +60,4 @@ site/
 
 # Pytest
 htmlcov
+.coverage

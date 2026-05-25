@@ -12,6 +12,7 @@ from unittest.mock import patch, MagicMock
 import pytest
 import pandas as pd
 
+from app.constants.file_size import FileSizeContants
 from app.utils.file_operations import FileOperations
 
 
@@ -265,7 +266,7 @@ class TestFileOperations:
     def test_validate_size_with_oversized_content(self, file_ops):
         """Test validate_size with oversized content"""
         # Create content larger than MAX_FILE_SIZE_BYTES
-        content = b"x" * (file_ops.MAX_FILE_SIZE_BYTES + 1)
+        content = b"x" * (FileSizeContants.MAX_FILE_SIZE_BYTES + 1)
         assert file_ops.validate_size(content=content) is False
 
     def test_validate_size_without_content_raises_error(self, file_ops):
@@ -282,22 +283,19 @@ class TestFileOperations:
         """Test that MAX_FILE_SIZE_MB is read from environment variable"""
         # Need to reload the module to pick up the new env variable
         import importlib
-        import app.utils.file_operations
+        import app.constants.file_size
 
         with patch.dict(os.environ, {"MAX_FILE_SIZE_MB": "20"}):
             # Reload module to pick up new environment variable
-            importlib.reload(app.utils.file_operations)
-            from app.utils.file_operations import FileOperations as ReloadedFileOps
+            importlib.reload(app.constants.file_size)
+            from app.constants.file_size import FileSizeContants as ReloadedFileConst
 
-            temp_path = tempfile.mkdtemp()
             try:
-                ops = ReloadedFileOps(base_directory=temp_path)
-                assert ops.MAX_FILE_SIZE_MB == 20
-                assert ops.MAX_FILE_SIZE_BYTES == 20 * 1024 * 1024
+                assert ReloadedFileConst.MAX_FILE_SIZE_MB == 20
+                assert ReloadedFileConst.MAX_FILE_SIZE_BYTES == 20 * 1024 * 1024
             finally:
-                shutil.rmtree(temp_path)
                 # Reload again to restore original state
-                importlib.reload(app.utils.file_operations)
+                importlib.reload(app.constants.file_size)
 
     def test_write_excel_io_error(self, file_ops):
         """Test that _write_excel raises IOError on failure"""

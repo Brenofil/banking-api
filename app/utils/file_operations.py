@@ -10,6 +10,7 @@ from io import BytesIO
 from fastapi import UploadFile
 import pandas as pd
 
+from app.constants.file_size import FileSizeContants
 from app.interfaces.crud_interface import CrudInterface
 from app.utils.logger import LoggerService
 
@@ -25,10 +26,6 @@ class FileOperations(CrudInterface):
 
     name: str = "File Operations"
     logger = LoggerService().get_logger(name)
-
-    # Get max file size from environment variable (default: 10 MB)
-    MAX_FILE_SIZE_MB: int = int(os.getenv("MAX_FILE_SIZE_MB", "10"))
-    MAX_FILE_SIZE_BYTES: int = MAX_FILE_SIZE_MB * 1024 * 1024
 
     def __init__(self, base_directory: Optional[str] = None):
         """
@@ -365,9 +362,9 @@ class FileOperations(CrudInterface):
         size: int = len(content)
 
         # Validates file size
-        if size > self.MAX_FILE_SIZE_BYTES:
+        if size > FileSizeContants.MAX_FILE_SIZE_BYTES:
             self.logger.error(
-                f"File size {size} exceeds maximum {self.MAX_FILE_SIZE_BYTES}"
+                f"File size {size} exceeds maximum {FileSizeContants.MAX_FILE_SIZE_BYTES}"
             )
             return False
 
