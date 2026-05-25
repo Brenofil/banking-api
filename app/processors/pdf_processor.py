@@ -5,7 +5,7 @@ from app.interfaces.processor_interface import ProcessorInterface
 from app.models.documents.processor import ProcessorResponse
 from app.utils import markdown
 from app.utils.logger import LoggerService
-from app.services.docling import DoclingService
+from app.services.documents.docling import DoclingService
 from app.enums.processing_status import ProcessingStatus
 from app.enums.file_extensions import FileExtension
 from app.enums.mime_types import MimeType
