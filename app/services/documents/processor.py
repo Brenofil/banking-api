@@ -1,11 +1,13 @@
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 from fastapi import HTTPException, UploadFile, status
-from app.constants.file_size import FileSizeContants
+from app.constants.files import FileConstants
 from app.interfaces.processor_interface import ProcessorInterface
 from app.models.documents.processor import ProcessorResponse
 from app.processors.factory import DocumentProcessorFactory
 from app.services.base_service import BaseService
+from app.services.data.pandas import PandasService
+from app.utils import file_operations
 from app.utils.file_operations import FileOperations
 import pandas as pd
 
@@ -15,10 +17,16 @@ class DocumentProcessorService(BaseService):
     Service responsible for executing the processment pipeline for a document.
     """
 
-    file_operations: FileOperations = FileOperations()
-    factory: DocumentProcessorFactory = DocumentProcessorFactory()
+    _pandas_service: PandasService
+    _file_operations: FileOperations
+    _factory: DocumentProcessorFactory
 
     def __init__(self) -> None:
+
+        self._pandas_service = PandasService()
+        self._file_operations = FileOperations()
+        self._factory = DocumentProcessorFactory()
+
         pass
 
     async def process_document(
@@ -30,7 +38,7 @@ class DocumentProcessorService(BaseService):
         try:
             # [OK] 1. Validates file size and content
             self.logger.info("[1|5] reading file content")
-            content: bytes = await self.read_from_file(file)
+            content: bytes = await self._read_from_file(file)
 
             # [OK] 2. Determines
             self.logger.info("[2|5] identifying appropriate processor")
@@ -39,7 +47,7 @@ class DocumentProcessorService(BaseService):
             # [OK] 3. Preprocesses the document
             self.logger.info("[3|5] Preprocessing document content")
 
-            processed: ProcessorResponse = self.process_content(
+            processed: ProcessorResponse = self._process_content(
                 processor, content, password
             )
 
@@ -59,7 +67,7 @@ class DocumentProcessorService(BaseService):
             self.logger.error(f"Unable to process document due to {str(e)}")
             raise e
 
-    async def read_from_file(self, file: UploadFile) -> bytes:
+    async def _read_from_file(self, file: UploadFile) -> bytes:
         """_summary_
 
         Args:
@@ -74,14 +82,14 @@ class DocumentProcessorService(BaseService):
             raise error
 
         # Validates file size
-        valid_size: bool = self.file_operations.validate_size(content)
+        valid_size: bool = self._file_operations.validate_size(content)
 
         if not valid_size:
             self.logger.error(f"File {file.filename} could not be processed")
 
             http_exception: HTTPException = HTTPException(
                 status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-                detail=f"File size exceeds maximum allowed size of {FileSizeContants.MAX_FILE_SIZE_MB}MB or file is empty",
+                detail=f"File size exceeds maximum allowed size of {FileConstants.MAX_FILE_SIZE_MB}MB or file is empty",
             )
 
             raise http_exception
@@ -90,7 +98,7 @@ class DocumentProcessorService(BaseService):
 
         return content
 
-    def process_content(
+    def _process_content(
         self,
         processor: ProcessorInterface,
         content: bytes,
@@ -141,7 +149,7 @@ class DocumentProcessorService(BaseService):
         self.logger.debug(f"Detected file extensions: .{extension}")
 
         # Get appropriate processor
-        processor: ProcessorInterface = self.factory.get_processor_by_extension(
+        processor: ProcessorInterface = self._factory.get_processor_by_extension(
             extension
         )
 
@@ -163,35 +171,15 @@ class DocumentProcessorService(BaseService):
         """
 
         self.logger.debug("Handling dataframes from processor response")
+
         try:
-            dataframe_data = data["dataframes"]
-
-            # Reconstructr DataFrames from serialized format
-            dataframes = [
-                pd.DataFrame(df["data"])
-                for df in (
-                    dataframe_data
-                    if isinstance(dataframe_data, list)
-                    else [dataframe_data]
-                )
-            ]
-
-            # Generate filename with timestamp
-            timestamp: str = datetime.now().strftime("%Y%m%d_%H%M%S")
-            base_filename: str = filename.rsplit(".", 1)[0]
-
-            excel_filename: str = f"{base_filename}_{timestamp}_tables.xlsx"
-
-            # Save to file
-            saved_path: str = self.file_operations.create(
-                filename=excel_filename, content=dataframes, overwrite=True
+            dataframe: List[pd.DataFrame] = self._pandas_service.df_from_dict(
+                attribute="dataframes", data=data
             )
 
-            data["excel_file"] = saved_path
-            self.logger.info(f"Saved DataFrames to Excel file @ {saved_path}")
-
+            self._pandas_service.write_df_as_excel(data=dataframe, filename=filename)
         except Exception as e:
             self.logger.error(f"Failed to save DataFrames to Excel: {str(e)}")
-            # Don't raise exception, just log the warning
+            raise e
 
         return data
