@@ -258,13 +258,15 @@ class FileOperations(CrudInterface):
             bool: True if file exists, False otherwise
         """
         filename = kwargs.get("filename")
-        directory = kwargs.get("directory", "")
+        directory = kwargs.get("directory", self.base_directory)
+
+        self.logger.debug(f"Searching for file {filename} @ {directory}")
 
         if not filename:
             return False
 
         # Build full path
-        file_path = os.path.join(self.base_directory, directory, filename)
+        file_path = os.path.join(directory, filename)
         return os.path.exists(file_path)
 
     def list(self, **kwargs) -> list[str]:

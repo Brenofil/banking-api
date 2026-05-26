@@ -6,6 +6,8 @@ from app.constants.files import FileConstants
 from app.services.base_service import BaseService
 import pandas as pd
 
+from app.utils.file_operations import FileOperations
+
 
 class PandasService(BaseService):
     """
@@ -15,8 +17,11 @@ class PandasService(BaseService):
         BaseService (_type_): _description_
     """
 
+    file_operations: FileOperations
+
     def __init__(self) -> None:
         super().__init__()
+        self.file_operations = FileOperations()
 
     def df_from_dict(
         self, attribute: str, data: Dict[str, Any] = {}
@@ -91,14 +96,34 @@ class PandasService(BaseService):
         excel_path: Path = Path(FileConstants.OUTPUT_EXCEL_DIR) / excel_filename
 
         for i, df in enumerate(data):
+
+            self.logger.info(f"Writting Sheet {i}")
+
             # get sheet name or force default
             sheet_name: str = f"Sheet {i}"
 
+            file_exists: bool = self.file_operations.exists(
+                filename=excel_filename, directory=FileConstants.OUTPUT_EXCEL_DIR
+            )
+
+            self.logger.info(f"Does file exist? {file_exists}")
+
             try:
                 # instantiate xlsx writer
-                self.xlsx_writer = pd.ExcelWriter(
-                    path=excel_path, date_format=DateConstants.XLSX_FORMAT, mode="w"
-                )
+                if file_exists:
+                    self.xlsx_writer = pd.ExcelWriter(
+                        path=excel_path,
+                        date_format=DateConstants.XLSX_FORMAT,
+                        mode="a",
+                        engine="openpyxl",
+                        if_sheet_exists="new",
+                    )
+                else:
+                    self.xlsx_writer = pd.ExcelWriter(
+                        path=excel_path,
+                        date_format=DateConstants.XLSX_FORMAT,
+                        engine="openpyxl",
+                    )
 
                 with self.xlsx_writer as excel_writer:
                     df.to_excel(excel_writer, sheet_name=sheet_name)

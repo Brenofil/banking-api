@@ -64,3 +64,5 @@ htmlcov
 
 # Output
 .output
+.output/*
+.output/response_example.json
