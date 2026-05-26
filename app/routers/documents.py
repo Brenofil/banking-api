@@ -12,7 +12,7 @@ from typing import Optional
 from datetime import datetime
 import pandas as pd
 
-from app.constants.file_size import FileSizeContants
+from app.constants.files import FileConstants
 from app.utils import file_operations
 from app.utils.logger import LoggerService
 from app.utils.file_operations import FileOperations
@@ -76,7 +76,7 @@ async def upload_document(
         logger.error(f"File validation failed for {file.filename}")
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail=f"File size exceeds maximum allowed size of {FileSizeContants.MAX_FILE_SIZE_MB}MB or file is empty",
+            detail=f"File size exceeds maximum allowed size of {FileConstants.MAX_FILE_SIZE_MB}MB or file is empty",
         )
 
     try:
@@ -171,6 +171,6 @@ async def upload_document(
 async def get_processing_config():
     """Get current processing configuration"""
     return {
-        "max_file_size_mb": FileSizeContants.MAX_FILE_SIZE_MB,
-        "max_file_size_bytes": FileSizeContants.MAX_FILE_SIZE_BYTES,
+        "max_file_size_mb": FileConstants.MAX_FILE_SIZE_MB,
+        "max_file_size_bytes": FileConstants.MAX_FILE_SIZE_BYTES,
     }

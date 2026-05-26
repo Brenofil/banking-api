@@ -10,7 +10,7 @@ from io import BytesIO
 from fastapi import UploadFile
 import pandas as pd
 
-from app.constants.file_size import FileSizeContants
+from app.constants.files import FileConstants
 from app.interfaces.crud_interface import CrudInterface
 from app.utils.logger import LoggerService
 
@@ -362,9 +362,9 @@ class FileOperations(CrudInterface):
         size: int = len(content)
 
         # Validates file size
-        if size > FileSizeContants.MAX_FILE_SIZE_BYTES:
+        if size > FileConstants.MAX_FILE_SIZE_BYTES:
             self.logger.error(
-                f"File size {size} exceeds maximum {FileSizeContants.MAX_FILE_SIZE_BYTES}"
+                f"File size {size} exceeds maximum {FileConstants.MAX_FILE_SIZE_BYTES}"
             )
             return False
 
