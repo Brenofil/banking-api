@@ -1,4 +1,5 @@
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 from app.constants.date import DateConstants
 from app.constants.files import FileConstants
@@ -14,18 +15,8 @@ class PandasService(BaseService):
         BaseService (_type_): _description_
     """
 
-    xlsx_writer: pd.ExcelWriter
-
     def __init__(self) -> None:
-        # instantiate class xlsx writer
-        self.xlsx_writer = pd.ExcelWriter(
-            path=FileConstants.OUTPUT_EXCEL_DIR,
-            date_format=DateConstants.XLSX_FORMAT,
-            mode="w",
-            if_sheet_exists="error",
-        )
-
-        pass
+        super().__init__()
 
     def df_from_dict(
         self, attribute: str, data: Dict[str, Any] = {}
@@ -97,11 +88,18 @@ class PandasService(BaseService):
 
         self.logger.info(f"Writting excel file as {str(excel_filename)}")
 
+        excel_path: Path = Path(FileConstants.OUTPUT_EXCEL_DIR) / excel_filename
+
         for i, df in enumerate(data):
             # get sheet name or force default
-            sheet_name: str = sheets[i] if len(sheets) <= i else f"Sheet {i}"
+            sheet_name: str = f"Sheet {i}"
 
             try:
+                # instantiate xlsx writer
+                self.xlsx_writer = pd.ExcelWriter(
+                    path=excel_path, date_format=DateConstants.XLSX_FORMAT, mode="w"
+                )
+
                 with self.xlsx_writer as excel_writer:
                     df.to_excel(excel_writer, sheet_name=sheet_name)
             except ValueError as error:

@@ -23,11 +23,11 @@ class DocumentProcessorService(BaseService):
 
     def __init__(self) -> None:
 
+        super().__init__()
+
         self._pandas_service = PandasService()
         self._file_operations = FileOperations()
         self._factory = DocumentProcessorFactory()
-
-        pass
 
     async def process_document(
         self, file: UploadFile, password: Optional[str] = None

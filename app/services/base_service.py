@@ -1,5 +1,4 @@
 from typing import Optional
-from loguru import Logger
 from app.interfaces.base_service_interface import BaseServiceInterface
 from app.utils.logger import get_logger
 
@@ -11,8 +10,6 @@ class BaseService(BaseServiceInterface):
     Args:
         BaseServiceInterface (_type_): _description_
     """
-
-    logger: Logger
 
     def __init__(self) -> None:
         self.logger = get_logger()
