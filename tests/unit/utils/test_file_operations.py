@@ -90,10 +90,11 @@ class TestFileOperations:
         result = file_ops.create(filename="test_multi.xlsx", content=[df1, df2])
         assert os.path.exists(result)
 
-    def test_create_with_subdirectory(self, file_ops):
+    def test_create_with_subdirectory(self, file_ops, temp_dir):
         """Test creating file in subdirectory"""
+        subdir_path = os.path.join(temp_dir, "subdir")
         result = file_ops.create(
-            filename="test.txt", content="test", directory="subdir"
+            filename="test.txt", content="test", directory=subdir_path
         )
         assert os.path.exists(result)
         assert "subdir" in result
@@ -232,19 +233,27 @@ class TestFileOperations:
         assert len(files) == 1
         assert "file1.txt" in files
 
-    def test_list_files_recursive(self, file_ops):
+    def test_list_files_recursive(self, file_ops, temp_dir):
         """Test listing files recursively"""
         file_ops.create(filename="file1.txt", content="test1")
-        file_ops.create(filename="file2.txt", content="test2", directory="subdir")
+
+        subdir_path = os.path.join(temp_dir, "subdir")
+        file_ops.create(filename="file2.txt", content="test2", directory=subdir_path)
+
         files = file_ops.list(recursive=True)
         assert len(files) == 2
+        assert "file1.txt" in files
+        assert os.path.join("subdir", "file2.txt") in files
 
-    def test_list_files_in_subdirectory(self, file_ops):
+    def test_list_files_in_subdirectory(self, file_ops, temp_dir):
         """Test listing files in subdirectory"""
-        file_ops.create(filename="file1.txt", content="test1", directory="subdir")
-        files = file_ops.list(directory="subdir")
+        subdir_path = os.path.join(temp_dir, "subdir")
+
+        file_ops.create(filename="file1.txt", content="test1", directory=subdir_path)
+
+        files = file_ops.list(directory=subdir_path)
         assert len(files) == 1
-        assert "subdir" in files[0]
+        assert files[0].endswith(os.path.join("subdir", "file1.txt"))
 
     def test_list_files_io_error(self, file_ops):
         """Test that IOError is raised when listing fails"""

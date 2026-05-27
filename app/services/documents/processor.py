@@ -54,10 +54,11 @@ class DocumentProcessorService(BaseService):
             # [OK] 4. Processes and extracts structured data using Docling
             self.logger.info("[4|5] Processing and extracting data with Docling")
 
-            if processed.data and "dataframes" in processed.data:
-                self._handle_dataframes(filename, processed.data)
-            else:
-                self.logger.info("No dataframes available in document")
+            # FIXME :: the dataframes are generating data loss
+            # if processed.data and "dataframes" in processed.data:
+            #     self._handle_dataframes(filename, processed.data)
+            # else:
+            #     self.logger.info("No dataframes available in document")
 
             # [OK] 6. Returns complete processing results
             self.logger.info("[5|5] Returning processment results")

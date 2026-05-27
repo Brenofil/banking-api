@@ -54,6 +54,34 @@ class FileOperations(CrudInterface):
             f"FileOperations initialized with base directory: {self.base_directory}"
         )
 
+    def _resolve_directory_path(self, directory: Optional[str] = None) -> str:
+        """
+        Resolve a directory path according to the storage rules.
+
+        Args:
+            directory: Optional directory relative to the project root.
+
+        Returns:
+            str: Absolute or relative directory path to use for file operations.
+        """
+        if directory:
+            return os.path.join(self._find_project_root(), directory)
+
+        return self.base_directory
+
+    def _resolve_file_path(self, filename: str, directory: Optional[str] = None) -> str:
+        """
+        Resolve a file path according to the storage rules.
+
+        Args:
+            filename: File name to resolve.
+            directory: Optional directory relative to the project root.
+
+        Returns:
+            str: Full file path.
+        """
+        return os.path.join(self._resolve_directory_path(directory), filename)
+
     def create(self, **kwargs) -> str:
         """
         Create a new file.
@@ -63,7 +91,7 @@ class FileOperations(CrudInterface):
                 - filename (str): Name of the file to create
                 - content (Union[bytes, str, BytesIO, pd.DataFrame, list[pd.DataFrame]]): File content
                 Optional parameters:
-                - directory (str): Subdirectory within base_directory
+                - directory (str): Directory relative to workspace root
                 - mode (str): File write mode (default: 'wb' for bytes, 'w' for str)
                 - overwrite (bool): Whether to overwrite existing file (default: False)
 
@@ -77,7 +105,7 @@ class FileOperations(CrudInterface):
         """
         filename = kwargs.get("filename")
         content = kwargs.get("content")
-        directory = kwargs.get("directory", "")
+        directory = kwargs.get("directory")
         overwrite = kwargs.get("overwrite", False)
 
         if not filename:
@@ -85,33 +113,27 @@ class FileOperations(CrudInterface):
         if content is None:
             raise ValueError("content parameter is required")
 
-        # Build full path
-        full_directory = os.path.join(self.base_directory, directory)
+        full_directory = self._resolve_directory_path(directory)
         os.makedirs(full_directory, exist_ok=True)
 
-        file_path = os.path.join(full_directory, filename)
+        file_path = self._resolve_file_path(filename, directory)
 
-        # Check if file exists
         if os.path.exists(file_path) and not overwrite:
             raise FileExistsError(f"File already exists: {file_path}")
 
         try:
-            # Handle DataFrame or list of DataFrames (export to Excel)
             if isinstance(content, pd.DataFrame) or (
                 isinstance(content, list)
                 and content
                 and isinstance(content[0], pd.DataFrame)
             ):
                 self._write_excel(file_path, content)
-            # Handle BytesIO
             elif isinstance(content, BytesIO):
                 with open(file_path, "wb") as f:
                     f.write(content.getvalue())
-            # Handle bytes
             elif isinstance(content, bytes):
                 with open(file_path, "wb") as f:
                     f.write(content)
-            # Handle string
             elif isinstance(content, str):
                 with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
@@ -146,15 +168,14 @@ class FileOperations(CrudInterface):
             IOError: If file reading fails
         """
         filename = kwargs.get("filename")
-        directory = kwargs.get("directory", "")
+        directory = kwargs.get("directory")
         mode = kwargs.get("mode", "rb")
         encoding = kwargs.get("encoding", "utf-8")
 
         if not filename:
             raise ValueError("filename parameter is required")
 
-        # Build full path
-        file_path = os.path.join(self.base_directory, directory, filename)
+        file_path = self._resolve_file_path(filename, directory)
 
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found: {file_path}")
@@ -190,13 +211,12 @@ class FileOperations(CrudInterface):
             IOError: If file update fails
         """
         filename = kwargs.get("filename")
-        directory = kwargs.get("directory", "")
+        directory = kwargs.get("directory")
 
         if not filename:
             raise ValueError("filename parameter is required")
 
-        # Build full path
-        file_path = os.path.join(self.base_directory, directory, filename)
+        file_path = self._resolve_file_path(filename, directory)
 
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found: {file_path}")
@@ -224,13 +244,12 @@ class FileOperations(CrudInterface):
             IOError: If file deletion fails
         """
         filename = kwargs.get("filename")
-        directory = kwargs.get("directory", "")
+        directory = kwargs.get("directory")
 
         if not filename:
             raise ValueError("filename parameter is required")
 
-        # Build full path
-        file_path = os.path.join(self.base_directory, directory, filename)
+        file_path = self._resolve_file_path(filename, directory)
 
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found: {file_path}")
@@ -258,15 +277,14 @@ class FileOperations(CrudInterface):
             bool: True if file exists, False otherwise
         """
         filename = kwargs.get("filename")
-        directory = kwargs.get("directory", self.base_directory)
+        directory = kwargs.get("directory")
 
         self.logger.debug(f"Searching for file {filename} @ {directory}")
 
         if not filename:
             return False
 
-        # Build full path
-        file_path = os.path.join(directory, filename)
+        file_path = self._resolve_file_path(filename, directory)
         return os.path.exists(file_path)
 
     def list(self, **kwargs) -> list[str]:
@@ -285,26 +303,26 @@ class FileOperations(CrudInterface):
         Raises:
             IOError: If listing fails
         """
-        directory = kwargs.get("directory", "")
+        directory = kwargs.get("directory")
         pattern = kwargs.get("pattern", "*")
         recursive = kwargs.get("recursive", False)
 
         try:
-            # Build search path
-            search_dir = os.path.join(self.base_directory, directory)
-
             if recursive:
+                search_dir = self.base_directory
                 search_pattern = os.path.join(search_dir, "**", pattern)
                 files = glob.glob(search_pattern, recursive=True)
+                relative_to = self.base_directory
             else:
+                search_dir = self._resolve_directory_path(directory)
                 search_pattern = os.path.join(search_dir, pattern)
                 files = glob.glob(search_pattern)
+                relative_to = (
+                    self._find_project_root() if directory else self.base_directory
+                )
 
-            # Return relative paths
             relative_files = [
-                os.path.relpath(f, self.base_directory)
-                for f in files
-                if os.path.isfile(f)
+                os.path.relpath(f, relative_to) for f in files if os.path.isfile(f)
             ]
 
             self.logger.info(f"Listed {len(relative_files)} files in {search_dir}")
@@ -344,6 +362,28 @@ class FileOperations(CrudInterface):
 
         except Exception as e:
             raise IOError(f"Failed to write Excel file: {str(e)}")
+
+    def _find_project_root(self) -> str:
+        """
+        Find the project root directory by looking for pyproject.toml.
+
+        Returns:
+            str: Path to the project root directory
+        """
+        # Start from the current file's directory
+        current_dir = Path(__file__).resolve().parent
+
+        # Traverse up the directory tree looking for pyproject.toml
+        while current_dir != current_dir.parent:
+            if (current_dir / "pyproject.toml").exists():
+                return str(current_dir)
+            current_dir = current_dir.parent
+
+        # If not found, return current working directory
+        self.logger.warning(
+            "Could not find project root (pyproject.toml), using current working directory"
+        )
+        return os.getcwd()
 
     def validate_size(self, content: bytes | None = None) -> bool:
         """

@@ -4,13 +4,12 @@ import os
 from typing import Dict, List, Union
 from typing_extensions import Any
 import pandas as pd
-from app.utils.logger import LoggerService
+from app.utils.logger import get_logger
 
 
 class MarkdownUtils:
 
-    name: str = "Markdown Utils"
-    logger = LoggerService().get_logger(name)
+    logger = get_logger("Markdown Utils")
 
     def _parse_markdown_tables(self, markdown_text: str) -> List[Dict[str, Any]]:
         """
