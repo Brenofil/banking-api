@@ -43,6 +43,7 @@ class DoclingService(DoclingServiceInterface):
 
         # Set up HuggingFace token for authenticated requests
         hf_token = os.getenv("HF_TOKEN")
+
         if hf_token:
             os.environ["HF_TOKEN"] = hf_token
             self.logger.info("HuggingFace token configured for authenticated requests")

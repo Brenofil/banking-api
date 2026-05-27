@@ -66,3 +66,6 @@ htmlcov
 .output
 .output/*
 .output/response_example.json
+
+# Sandbox
+./sandbox/files/*
